@@ -463,6 +463,50 @@
   .footer-links a:hover { color: var(--blue-brand); }
   .footer-copy { font-size: 0.72rem; color: var(--text-muted); }
 
+  /* ── ACCORDION ── */
+  .jenis-accordion { display: flex; flex-direction: column; gap: 0.5rem; }
+  .jenis-item { border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden; background: var(--bg-card); box-shadow: var(--shadow-sm); transition: box-shadow 0.25s, border-color 0.25s; }
+  .jenis-item.open { box-shadow: var(--shadow-md); border-color: var(--blue-accent); }
+  .jenis-header { display: flex; align-items: center; gap: 1rem; padding: 1.15rem 1.4rem; cursor: pointer; user-select: none; transition: background 0.2s; }
+  .jenis-header:hover { background: var(--blue-ice); }
+  .jenis-item.open .jenis-header { background: var(--blue-ice); border-bottom: 1px solid var(--border-soft); }
+  .jenis-acc-rank { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 22px; flex-shrink: 0; }
+  .jenis-meta { flex: 1; min-width: 0; }
+  .jenis-acc-name { font-size: 0.88rem; font-weight: 600; color: var(--text-dark); }
+  .jenis-bar-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.35rem; }
+  .jenis-bar-wrap { flex: 1; height: 4px; background: var(--blue-pale); border-radius: 2px; overflow: hidden; }
+  .jenis-bar-inner { height: 100%; background: linear-gradient(90deg, var(--blue-brand), var(--blue-light)); border-radius: 2px; width: 0; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
+  .jenis-pct-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--blue-brand); white-space: nowrap; flex-shrink: 0; }
+  .jenis-acc-val { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: var(--text-dark); white-space: nowrap; flex-shrink: 0; }
+  .jenis-chevron { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.3s; flex-shrink: 0; margin-left: 0.25rem; }
+  .jenis-item.open .jenis-chevron { transform: rotate(180deg); color: var(--blue-brand); }
+
+  .jenis-dropdown { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.22,1,0.36,1); }
+  .jenis-item.open .jenis-dropdown { max-height: 4000px; }
+  .skpd-list { padding: 0.25rem 1.4rem 0.75rem; }
+  .skpd-list-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-soft); margin-bottom: 0.25rem; }
+  .skpd-hdr { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .skpd-hdr.rank { min-width: 24px; }
+  .skpd-hdr.name { flex: 1; }
+  .skpd-hdr.val { min-width: 110px; text-align: right; }
+  .skpd-hdr.pct { min-width: 52px; text-align: right; }
+  .skpd-hdr.bar { width: 80px; }
+  .skpd-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(226,232,240,0.45); }
+  .skpd-item:last-child { border-bottom: none; }
+  .skpd-rank { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 24px; text-align: right; flex-shrink: 0; }
+  .skpd-name { font-size: 0.8rem; color: var(--text-body); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .skpd-val { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dark); white-space: nowrap; min-width: 110px; text-align: right; flex-shrink: 0; }
+  .skpd-pct { font-size: 0.68rem; color: var(--blue-brand); white-space: nowrap; min-width: 52px; text-align: right; flex-shrink: 0; }
+  .skpd-bar-wrap { width: 80px; height: 3px; background: var(--blue-pale); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+  .skpd-bar-inner { height: 100%; background: var(--blue-light); border-radius: 2px; }
+
+  @media(max-width:768px){
+    .skpd-bar-wrap { display: none; }
+    .skpd-pct { display: none; }
+    .skpd-val { min-width: 80px; font-size: 0.7rem; }
+    .jenis-acc-val { font-size: 0.95rem; }
+  }
+
   /* ── SCROLL REVEAL ── */
   .reveal { opacity: 0; transform: translateY(20px); transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1); }
   .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -525,16 +569,7 @@
     </div>
     <div class="nilai-total-badge">AKHIR TAHUN 2025</div>
   </div>
-  <div class="jenis-grid">
-    <div class="jenis-card reveal" data-pct="42.3"><div class="jenis-name">Jalan, Irigasi dan Jaringan</div><div class="jenis-val">Rp 3.778,57 M</div><div class="jenis-pct">42.3% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="23.8"><div class="jenis-name">Gedung dan Bangunan</div><div class="jenis-val">Rp 2.125,95 M</div><div class="jenis-pct">23.8% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="15.3"><div class="jenis-name">Peralatan dan Mesin</div><div class="jenis-val">Rp 1.363,72 M</div><div class="jenis-pct">15.3% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="12.9"><div class="jenis-name">Tanah</div><div class="jenis-val">Rp 1.156,31 M</div><div class="jenis-pct">12.9% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="2.2"><div class="jenis-name">Konstruksi Dalam Pengerjaan</div><div class="jenis-val">Rp 195,71 M</div><div class="jenis-pct">2.2% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="2.0"><div class="jenis-name">Aset Tetap Lainnya</div><div class="jenis-val">Rp 177,98 M</div><div class="jenis-pct">2.0% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="1.4"><div class="jenis-name">Aset Lain-Lain</div><div class="jenis-val">Rp 122,37 M</div><div class="jenis-pct">1.4% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    <div class="jenis-card reveal" data-pct="0.2"><div class="jenis-name">Aset Tidak Berwujud</div><div class="jenis-val">Rp 17,24 M</div><div class="jenis-pct">0.2% dari total</div><div class="bar-track"><div class="bar-fill"></div></div></div>
-  </div>
+  <div id="nilaiAccordion" class="jenis-accordion reveal"></div>
 </section>
 
 <!-- CHART -->
@@ -746,8 +781,150 @@
 </footer>
 
 <script>
-  // Scroll Reveal
-  const reveals = document.querySelectorAll('.reveal');
+  // ── DATA PER SKPD ──
+  // fields: n=nama, t=tanah, pm=peralatan&mesin, gb=gedung&bangunan,
+  //         jij=jalan irigasi jaringan, atl=aset tetap lainnya,
+  //         kdp=konstruksi dlm pengerjaan, atbw=aset tidak berwujud, all=aset lain-lain
+  const SKPD = [
+    {n:"Dinas Pendidikan",t:148394433759.58,pm:277628183862.88,gb:817801433100.42,jij:3091990431.94,atl:162541933761.69,kdp:149178000,atbw:294150000,all:14767977529.05},
+    {n:"Dinas Kesehatan",t:19640173806,pm:166752120331.49,gb:185063129094.01,jij:14791099226,atl:11535000,kdp:476604393,atbw:339555000,all:1852769370.05},
+    {n:"RSUD Kabupaten Kediri",t:1904685000,pm:287260433796.24,gb:163814962720.01,jij:36723024440.19,atl:35021500,kdp:566697300,atbw:3740813273,all:0},
+    {n:"RSUD SLG",t:21444974730,pm:263503492561.22,gb:224121646756.78,jij:31156796230.47,atl:400000,kdp:0,atbw:2811825000,all:0},
+    {n:"Dinas Pekerjaan Umum dan Penataan Ruang",t:324140201961.8,pm:24791716809.85,gb:39490789942.92,jij:3393307635569.22,atl:1527500,kdp:3804144428,atbw:1281852000,all:3982346872.08},
+    {n:"Dinas Perumahan dan Kawasan Permukiman",t:89109983709.92,pm:19498290883.96,gb:30328232637.26,jij:198279183562.71,atl:0,kdp:169790027273,atbw:0,all:0},
+    {n:"Satuan Polisi Pamong Praja",t:200000000,pm:15950234571.64,gb:3546268249,jij:0,atl:8060000,kdp:0,atbw:45000000,all:0},
+    {n:"Badan Penanggulangan Bencana Daerah",t:0,pm:8330211390.27,gb:156473106,jij:1760460000,atl:0,kdp:0,atbw:59645455,all:0},
+    {n:"Dinas Sosial",t:7342263600,pm:2929672154.79,gb:4541833905,jij:0,atl:662500,kdp:0,atbw:341110000,all:0},
+    {n:"Dinas Tenaga Kerja",t:365925000,pm:6589508785.19,gb:3521123875.73,jij:8820005237,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Dinas Ketahanan Pangan dan Peternakan",t:5750543325,pm:10528103832.21,gb:15206721357.96,jij:912929444.15,atl:0,kdp:0,atbw:239550000,all:334315800},
+    {n:"Dinas Lingkungan Hidup",t:19611241236,pm:50071186728.36,gb:88164832321.78,jij:16588482238.2,atl:4416412075.23,kdp:174515675,atbw:85930000,all:782624782.94},
+    {n:"Dinas Kependudukan dan Pencatatan Sipil",t:0,pm:12526061127.67,gb:7656701657.78,jij:502252150.92,atl:0,kdp:0,atbw:395944300,all:34700000},
+    {n:"Dinas Pemberdayaan Masyarakat dan Pemdes",t:571171000,pm:3311649143.88,gb:2661711295.72,jij:0,atl:2000000,kdp:0,atbw:157844000,all:0},
+    {n:"Dinas Pengendalian Penduduk, KB, PP & PA",t:0,pm:9126634208.3,gb:7845081152,jij:0,atl:225000,kdp:0,atbw:6000000,all:136900000},
+    {n:"Dinas Perhubungan",t:5343648100,pm:29815014920.47,gb:20819647204,jij:226316800,atl:2000000,kdp:249195070,atbw:606227200,all:3426034960},
+    {n:"Dinas Komunikasi dan Informatika",t:2940000,pm:17676771366.02,gb:4982562424,jij:274552000,atl:115649250,kdp:0,atbw:2902481000,all:2344000},
+    {n:"Dinas Koperasi dan Usaha Mikro",t:198373000,pm:3635126958.62,gb:4372373557.5,jij:0,atl:9717400,kdp:0,atbw:198899500,all:0},
+    {n:"Dinas Penanaman Modal dan PTSP",t:320000000,pm:5193708789.37,gb:2912325782,jij:0,atl:15473600,kdp:0,atbw:117650000,all:0},
+    {n:"Dinas Kearsipan dan Perpustakaan",t:138275000,pm:2290284464.06,gb:808840644.64,jij:0,atl:1429476262.99,kdp:0,atbw:384063903,all:34530000},
+    {n:"Dinas Perikanan",t:4703979000,pm:3253355767.5,gb:11408464516.97,jij:1383680001.4,atl:10890000,kdp:0,atbw:9999000,all:0},
+    {n:"Dinas Pariwisata dan Kebudayaan",t:52290081267,pm:3810462836.26,gb:53076240167.44,jij:10254181464.1,atl:552394450,kdp:0,atbw:19950000,all:0},
+    {n:"Dinas Pertanian dan Perkebunan",t:29922374100,pm:20514388486.15,gb:21169507407.39,jij:36268457630,atl:9502500,kdp:0,atbw:476975720,all:0},
+    {n:"Dinas Perdagangan dan Perindustrian",t:38922335924.86,pm:9925426992.76,gb:122248061838.52,jij:3121834717.68,atl:6950600,kdp:20500348010,atbw:504247915,all:467884000},
+    {n:"Sekretariat Daerah",t:12674832000,pm:29307594529.69,gb:169479013226.69,jij:13684227031.21,atl:8692183325,kdp:0,atbw:314466500,all:88000000},
+    {n:"Sekretariat DPRD",t:0,pm:6787574896.55,gb:6538511311,jij:493099448,atl:0,kdp:0,atbw:84710000,all:10500000},
+    {n:"Badan Perencanaan Pembangunan Daerah",t:0,pm:3567340459.01,gb:236887872,jij:0,atl:75808778,kdp:0,atbw:89958000,all:0},
+    {n:"Badan Keuangan dan Aset Daerah",t:343930600207,pm:17416972084.13,gb:14347953808.73,jij:3180766285,atl:13339400,kdp:0,atbw:132380000,all:93277965306.15},
+    {n:"Badan Pendapatan Daerah",t:0,pm:13079764020.81,gb:10391599822,jij:678000696,atl:27114500,kdp:0,atbw:1244074800,all:0},
+    {n:"Badan Kepegawaian dan PSDM",t:17155572000,pm:9195612204.21,gb:35878576017.9,jij:1992568500,atl:0,kdp:0,atbw:341047422,all:0},
+    {n:"Badan Riset dan Inovasi Daerah",t:0,pm:1793486141.11,gb:1441408151.73,jij:0,atl:0,kdp:0,atbw:12900000,all:200000},
+    {n:"Inspektorat",t:0,pm:1080784766.14,gb:0,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Mojo",t:318000000,pm:1011099955.76,gb:1549577543.52,jij:0,atl:400000,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Kras",t:678000000,pm:1068460170.41,gb:1290222909.59,jij:0,atl:75000,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Ngadiluwih",t:160000000,pm:852617937.88,gb:1443958627.59,jij:0,atl:0,kdp:0,atbw:0,all:749999.98},
+    {n:"Kecamatan Kandat",t:136000000,pm:865714252.12,gb:1329394004,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Wates",t:137500000,pm:1015715752.79,gb:1438891581.42,jij:0,atl:0,kdp:0,atbw:0,all:270000},
+    {n:"Kecamatan Ngancar",t:120000000,pm:1102276374.22,gb:2017169251,jij:0,atl:0,kdp:0,atbw:0,all:2500000},
+    {n:"Kecamatan Puncu",t:60300000,pm:883639358.65,gb:1746333242.7,jij:1950000,atl:1100000,kdp:0,atbw:0,all:12000000},
+    {n:"Kecamatan Plosoklaten",t:135000000,pm:649618881.79,gb:1219260422.76,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Gurah",t:37500000,pm:1074104205.09,gb:2159632861,jij:0,atl:535250,kdp:0,atbw:0,all:76000},
+    {n:"Kecamatan Pagu",t:213570000,pm:898711377.17,gb:1760788615.73,jij:0,atl:75000,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Gampengrejo",t:1301170000,pm:1093914657.5,gb:3299305135,jij:0,atl:0,kdp:0,atbw:0,all:4500000},
+    {n:"Kecamatan Grogol",t:29500000,pm:1052977081.17,gb:1467021843.62,jij:1000000,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Papar",t:160000000,pm:863676412.43,gb:1883712393.02,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Purwoasri",t:60000000,pm:817616625.57,gb:2369829439.35,jij:0,atl:150000,kdp:0,atbw:0,all:600000},
+    {n:"Kecamatan Plemahan",t:13000000,pm:931232241.54,gb:1952764118.73,jij:0,atl:50000,kdp:0,atbw:0,all:12250000},
+    {n:"Kecamatan Pare",t:5196524000,pm:2574107194.9,gb:5913309701.73,jij:1069402196.17,atl:0,kdp:0,atbw:0,all:3126118000},
+    {n:"Kecamatan Kepung",t:268604000,pm:787398693.7,gb:1563006080.34,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Kandangan",t:400000000,pm:1024975369.38,gb:1714923764.63,jij:0,atl:0,kdp:0,atbw:0,all:1839000},
+    {n:"Kecamatan Tarokan",t:100000000,pm:938850254.36,gb:1648176052.81,jij:3000000,atl:775000,kdp:0,atbw:0,all:750000},
+    {n:"Kecamatan Kunjang",t:100250000,pm:998848950.75,gb:2388535458,jij:0,atl:0,kdp:0,atbw:0,all:250000},
+    {n:"Kecamatan Banyakan",t:328501000,pm:1077344509,gb:1754680747.87,jij:0,atl:0,kdp:0,atbw:0,all:1500000},
+    {n:"Kecamatan Ringinrejo",t:200000000,pm:835412168.36,gb:1772922439,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Kayen Kidul",t:514409000,pm:821092502.12,gb:2435544581.73,jij:0,atl:600000,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Ngasem",t:27000000,pm:831253293.79,gb:1388020315,jij:0,atl:1500000,kdp:0,atbw:0,all:5250000},
+    {n:"Kecamatan Badas",t:650280000,pm:823445353.7,gb:2642317042,jij:0,atl:0,kdp:0,atbw:0,all:0},
+    {n:"Kecamatan Semen",t:886000000,pm:914203887.47,gb:1767063175,jij:0,atl:0,kdp:0,atbw:0,all:6000000},
+    {n:"Badan Kesatuan Bangsa dan Politik",t:0,pm:773526889.67,gb:0,jij:0,atl:0,kdp:0,atbw:0,all:0},
+  ];
+
+  const JENIS = [
+    {key:'t',   label:'Tanah',                      total:1156309715727.16, pct:12.9},
+    {key:'pm',  label:'Peralatan dan Mesin',         total:1363723004222.10, pct:15.3},
+    {key:'gb',  label:'Gedung dan Bangunan',          total:2125949276272.02, pct:23.8},
+    {key:'jij', label:'Jalan, Irigasi dan Jaringan', total:3778566895300.36, pct:42.3},
+    {key:'atl', label:'Aset Tetap Lainnya',           total:177983537652.91,  pct:2.0},
+    {key:'kdp', label:'Konstruksi Dalam Pengerjaan',  total:195710710149,     pct:2.2},
+    {key:'atbw',label:'Aset Tidak Berwujud',          total:17239249988,      pct:0.2},
+    {key:'all', label:'Aset Lain-Lain',               total:122373745620.25,  pct:1.4},
+  ];
+
+  function formatRp(n) {
+    if (!n || n <= 0) return '-';
+    const m = n / 1e9;
+    if (m >= 1) {
+      const s = m.toFixed(2).split('.');
+      return 'Rp ' + s[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + s[1] + ' M';
+    }
+    const jt = n / 1e6;
+    return 'Rp ' + jt.toFixed(1).replace('.', ',') + ' jt';
+  }
+
+  function buildAccordion() {
+    const container = document.getElementById('nilaiAccordion');
+    JENIS.forEach((j, idx) => {
+      const sorted = SKPD.filter(s => s[j.key] > 0).sort((a, b) => b[j.key] - a[j.key]);
+      const maxVal = sorted.length ? sorted[0][j.key] : 1;
+
+      const skpdRows = sorted.map((s, i) => {
+        const relPct = Math.round(s[j.key] / maxVal * 100);
+        const pctOf  = (s[j.key] / j.total * 100).toFixed(1).replace('.', ',');
+        return `<div class="skpd-item">
+          <span class="skpd-rank">${i + 1}</span>
+          <span class="skpd-name" title="${s.n}">${s.n}</span>
+          <span class="skpd-val">${formatRp(s[j.key])}</span>
+          <span class="skpd-pct">${pctOf}%</span>
+          <div class="skpd-bar-wrap"><div class="skpd-bar-inner" style="width:${relPct}%"></div></div>
+        </div>`;
+      }).join('');
+
+      const item = document.createElement('div');
+      item.className = 'jenis-item';
+      item.innerHTML = `
+        <div class="jenis-header" onclick="toggleJenis(this.parentElement)">
+          <span class="jenis-acc-rank">${String(idx + 1).padStart(2, '0')}</span>
+          <div class="jenis-meta">
+            <div class="jenis-acc-name">${j.label}</div>
+            <div class="jenis-bar-row">
+              <div class="jenis-bar-wrap"><div class="jenis-bar-inner" data-pct="${j.pct}"></div></div>
+              <span class="jenis-pct-badge">${String(j.pct).replace('.', ',')}% dari total</span>
+            </div>
+          </div>
+          <div class="jenis-acc-val">${formatRp(j.total)}</div>
+          <span class="jenis-chevron">▼</span>
+        </div>
+        <div class="jenis-dropdown">
+          <div class="skpd-list">
+            <div class="skpd-list-header">
+              <span class="skpd-hdr rank">#</span>
+              <span class="skpd-hdr name">SKPD</span>
+              <span class="skpd-hdr val">Nilai</span>
+              <span class="skpd-hdr pct">% Jenis</span>
+              <span class="skpd-hdr bar"></span>
+            </div>
+            ${skpdRows}
+          </div>
+        </div>`;
+      container.appendChild(item);
+    });
+  }
+
+  function toggleJenis(item) {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.jenis-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── Scroll Reveal ──
   const obs = new IntersectionObserver(entries => {
     entries.forEach((e, i) => {
       if (e.isIntersecting) {
@@ -756,24 +933,25 @@
       }
     });
   }, { threshold: 0.08 });
-  reveals.forEach(el => obs.observe(el));
 
-  // Bar animate
+  // ── Bar animation on scroll ──
   const barObs = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.querySelectorAll('.jenis-card').forEach(card => {
-          const pct = parseFloat(card.dataset.pct);
-          setTimeout(() => card.querySelector('.bar-fill').style.width = pct + '%', 300);
+        entry.target.querySelectorAll('.jenis-bar-inner[data-pct]').forEach(b => {
+          setTimeout(() => b.style.width = b.dataset.pct + '%', 300);
         });
         barObs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.2 });
-  const jg = document.querySelector('.jenis-grid');
-  if (jg) barObs.observe(jg);
+  }, { threshold: 0.1 });
 
-  // Donut
+  // ── Init ──
+  buildAccordion();
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  document.querySelectorAll('.jenis-item').forEach(el => barObs.observe(el));
+
+  // ── Donut ──
   const CIRC = 2 * Math.PI * 108;
   const pcts = [42.3, 23.8, 15.3, 12.9, 2.2, 2.0, 1.4, 0.2];
   let offset = 0;
