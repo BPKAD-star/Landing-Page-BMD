@@ -435,13 +435,31 @@
   }
 
   /* ── ORGANISASI ── */
-  .org-chart { display: flex; flex-direction: column; align-items: center; gap: 0; }
-  .org-level { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
-  .org-connector-v {
-    width: 2px; height: 40px;
-    background: linear-gradient(to bottom, var(--blue-brand), var(--blue-accent));
-    margin: 0 auto;
+  .org-chart { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .org-connector-v { width: 2px; height: 22px; background: var(--blue-brand); margin: 0 auto; }
+  /* Horizontal bar + 3 drop lines + arrowheads */
+  .org-branch {
+    display: flex; gap: 2rem; width: 100%;
+    position: relative; height: 46px; align-items: flex-start;
   }
+  .org-branch::before {
+    content: ''; position: absolute; top: 0;
+    left: calc((100% - 4rem) / 6);
+    right: calc((100% - 4rem) / 6);
+    height: 2px; background: var(--blue-brand);
+  }
+  .org-branch-drop { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .org-branch-drop::before { content: ''; width: 2px; height: 28px; background: var(--blue-brand); }
+  .org-branch-drop::after {
+    content: ''; width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--blue-brand);
+  }
+  /* Children level */
+  .org-level { display: flex; gap: 2rem; justify-content: center; width: 100%; }
+  .org-col { flex: 1; display: flex; justify-content: center; }
+  .org-col .org-node { width: 100%; }
   .org-node {
     padding: 1rem 1.5rem;
     border: 1px solid var(--border-soft);
@@ -449,14 +467,18 @@
     background: var(--bg-card);
     box-shadow: var(--shadow-sm);
     text-align: center;
-    min-width: 190px;
     transition: all 0.25s;
   }
-  .org-node.top { background: var(--blue-ice); border-color: var(--blue-accent); }
+  .org-node.top { background: var(--blue-ice); border-color: var(--blue-accent); min-width: 220px; flex: unset; }
   .org-node:hover { border-color: var(--blue-accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
   .org-role { font-size: 0.68rem; color: var(--blue-brand); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
   .org-name { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
   .org-staf { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; }
+  @media (max-width: 640px) {
+    .org-branch, .org-connector-v { display: none; }
+    .org-level { flex-direction: column; align-items: center; gap: 1rem; }
+    .org-col { flex: unset; width: 100%; max-width: 320px; }
+  }
 
   /* ── APPS ── */
   .apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr)); gap: 1.5rem; }
@@ -719,21 +741,32 @@
       </div>
     </div>
     <div class="org-connector-v"></div>
-    <div class="org-level" style="gap:2rem;align-items:flex-start">
-      <div class="org-node">
-        <div class="org-role">Kasubbid</div>
-        <div class="org-name">Penatausahaan &amp; Pemindahtanganan BMD</div>
-        <div class="org-staf">5 Staf Pelaksana</div>
+    <div class="org-branch">
+      <div class="org-branch-drop"></div>
+      <div class="org-branch-drop"></div>
+      <div class="org-branch-drop"></div>
+    </div>
+    <div class="org-level">
+      <div class="org-col">
+        <div class="org-node">
+          <div class="org-role">Kasubbid</div>
+          <div class="org-name">Penatausahaan &amp; Pemindahtanganan BMD</div>
+          <div class="org-staf">5 Staf Pelaksana</div>
+        </div>
       </div>
-      <div class="org-node">
-        <div class="org-role">Kasubbid</div>
-        <div class="org-name">Perencanaan, Pemanfaatan &amp; Pengamanan BMD</div>
-        <div class="org-staf">5 Staf Pelaksana</div>
+      <div class="org-col">
+        <div class="org-node">
+          <div class="org-role">Kasubbid</div>
+          <div class="org-name">Perencanaan, Pemanfaatan &amp; Pengamanan BMD</div>
+          <div class="org-staf">5 Staf Pelaksana</div>
+        </div>
       </div>
-      <div class="org-node">
-        <div class="org-role">Fungsional</div>
-        <div class="org-name">AKPD</div>
-        <div class="org-staf">Analis Kebijakan Pertama Daerah</div>
+      <div class="org-col">
+        <div class="org-node">
+          <div class="org-role">Fungsional</div>
+          <div class="org-name">AKPD</div>
+          <div class="org-staf">Analis Kebijakan Pertama Daerah</div>
+        </div>
       </div>
     </div>
   </div>
