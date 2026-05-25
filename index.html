@@ -349,29 +349,90 @@
   .siklus-label { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.4rem; }
   .siklus-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
 
-  /* ── REGULASI ── */
-  .regulasi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 1rem; }
-  .regulasi-card {
-    display: flex; gap: 1rem;
-    padding: 1.4rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.25s;
-    text-decoration: none;
-  }
-  .regulasi-card:hover { border-color: var(--blue-accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
-  .reg-icon {
-    width: 40px; height: 40px; flex-shrink: 0;
+  /* ── REGULASI HIERARKI ── */
+  .reg-hierarchy { display: flex; align-items: flex-start; gap: 1rem; overflow-x: auto; padding-bottom: 1.5rem; }
+  .reg-col { flex: 1; min-width: 190px; }
+  .reg-col:nth-child(2) { margin-top: 2.5rem; }
+  .reg-col:nth-child(3) { margin-top: 5rem; }
+  .reg-col:nth-child(4) { margin-top: 7.5rem; }
+  .reg-cat-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 1.1rem;
     background: var(--blue-ice);
-    border: 1px solid var(--blue-accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
+    border: 2px solid var(--blue-brand);
+    border-radius: 10px;
+    cursor: pointer; user-select: none;
+    transition: background 0.2s;
   }
-  .reg-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--blue-brand); margin-bottom: 0.25rem; letter-spacing: 0.04em; }
-  .reg-title { font-size: 0.85rem; font-weight: 500; color: var(--text-dark); line-height: 1.4; }
+  .reg-cat-header:hover { background: #dbeafe; }
+  .reg-cat-header.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .reg-cat-emoji { font-size: 1.1rem; flex-shrink: 0; }
+  .reg-cat-label { font-size: 0.82rem; font-weight: 600; color: var(--blue-brand); flex: 1; line-height: 1.3; }
+  .reg-cat-chevron { font-size: 0.65rem; color: var(--blue-brand); transition: transform 0.25s; flex-shrink: 0; }
+  .reg-cat-header.open .reg-cat-chevron { transform: rotate(180deg); }
+  .reg-cat-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.35s ease;
+    background: white;
+    border: 2px solid var(--blue-brand); border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
+  .reg-cat-body.open { max-height: 800px; }
+  .reg-item {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .reg-item:last-child { border-bottom: none; }
+  .reg-item:hover { background: var(--blue-ice); }
+  .reg-item-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-brand); flex-shrink: 0; margin-top: 0.35rem; }
+  .reg-item-info { flex: 1; }
+  .reg-item-num { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--blue-brand); font-weight: 600; margin-bottom: 0.1rem; }
+  .reg-item-title { font-size: 0.75rem; color: var(--text-dark); line-height: 1.3; }
+  .reg-item-pdf-icon { font-size: 0.75rem; flex-shrink: 0; margin-top: 0.1rem; color: #64748b; }
+  /* PDF Modal */
+  .pdf-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,23,42,0.6); z-index: 1000;
+    align-items: center; justify-content: center; padding: 1rem;
+    backdrop-filter: blur(2px);
+  }
+  .pdf-overlay.open { display: flex; }
+  .pdf-modal {
+    background: white; border-radius: 14px; width: 100%; max-width: 880px;
+    max-height: 90vh; display: flex; flex-direction: column;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35); overflow: hidden;
+  }
+  .pdf-modal-head {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-soft); flex-shrink: 0;
+  }
+  .pdf-modal-info { flex: 1; min-width: 0; }
+  .pdf-modal-title { font-size: 0.88rem; font-weight: 600; color: var(--text-dark); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pdf-modal-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--blue-brand); margin-top: 0.15rem; }
+  .btn-dl {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.45rem 0.9rem; background: var(--blue-brand); color: white;
+    border: none; border-radius: 7px; font-size: 0.78rem; font-weight: 500;
+    cursor: pointer; text-decoration: none; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
+  }
+  .btn-dl:hover { background: #1d4ed8; }
+  .btn-cl {
+    width: 32px; height: 32px; border: 1px solid var(--border-soft); background: white;
+    border-radius: 7px; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dark); transition: background 0.15s; flex-shrink: 0;
+  }
+  .btn-cl:hover { background: #f1f5f9; }
+  .pdf-modal-body { flex: 1; overflow: hidden; }
+  .pdf-modal-body iframe { width: 100%; height: 100%; min-height: 65vh; border: none; display: block; }
+  @media (max-width: 768px) {
+    .reg-hierarchy { flex-direction: column; }
+    .reg-col { min-width: unset; width: 100%; }
+    .reg-col:nth-child(2), .reg-col:nth-child(3), .reg-col:nth-child(4) { margin-top: 0; }
+    .pdf-modal-body iframe { min-height: 55vh; }
+  }
 
   /* ── ORGANISASI ── */
   .org-chart { display: flex; flex-direction: column; align-items: center; gap: 0; }
@@ -637,17 +698,10 @@
 <section class="bg-white" id="regulasi">
   <div class="section-header reveal">
     <div class="section-label">Dasar Hukum</div>
-    <h2 class="section-title">Regulasi & Peraturan</h2>
-    <p class="section-desc">Landasan hukum pengelolaan Barang Milik Daerah di Kabupaten Kediri.</p>
+    <h2 class="section-title">Regulasi &amp; Peraturan</h2>
+    <p class="section-desc">Hierarki landasan hukum pengelolaan Barang Milik Daerah di Kabupaten Kediri.</p>
   </div>
-  <div class="regulasi-grid reveal">
-    <a class="regulasi-card" href="#"><div class="reg-icon">📜</div><div><div class="reg-num">UU No. 1 Tahun 2004</div><div class="reg-title">Perbendaharaan Negara</div></div></a>
-    <a class="regulasi-card" href="#"><div class="reg-icon">📋</div><div><div class="reg-num">PP No. 28 Tahun 2020</div><div class="reg-title">Pengelolaan BMN/D — Perubahan atas PP No. 27/2014</div></div></a>
-    <a class="regulasi-card" href="#"><div class="reg-icon">📐</div><div><div class="reg-num">Permendagri No. 19 Tahun 2016</div><div class="reg-title">Pedoman Pengelolaan Barang Milik Daerah</div></div></a>
-    <a class="regulasi-card" href="#"><div class="reg-icon">🏛️</div><div><div class="reg-num">PP No. 27 Tahun 2014</div><div class="reg-title">Pengelolaan Barang Milik Negara/Daerah</div></div></a>
-    <a class="regulasi-card" href="#"><div class="reg-icon">📊</div><div><div class="reg-num">Permendagri No. 47 Tahun 2021</div><div class="reg-title">Pembukuan, Inventarisasi, dan Pelaporan BMD</div></div></a>
-    <a class="regulasi-card" href="#"><div class="reg-icon">🗂️</div><div><div class="reg-num">Perda Kabupaten Kediri</div><div class="reg-title">Peraturan Daerah tentang Pengelolaan BMD</div></div></a>
-  </div>
+  <div class="reg-hierarchy reveal" id="regHierarchy"></div>
 </section>
 
 <!-- ORGANISASI -->
@@ -781,6 +835,23 @@
   </ul>
   <div class="footer-copy">© 2025 Bidang Pengelola BMD — BKAD Kab. Kediri</div>
 </footer>
+
+<!-- PDF MODAL -->
+<div class="pdf-overlay" id="pdfOverlay" onclick="closePdfModal(event)">
+  <div class="pdf-modal">
+    <div class="pdf-modal-head">
+      <div class="pdf-modal-info">
+        <div class="pdf-modal-title" id="pdfTitle">-</div>
+        <div class="pdf-modal-num" id="pdfNum">-</div>
+      </div>
+      <a class="btn-dl" id="pdfDownload" href="#" download target="_blank">⬇ Unduh PDF</a>
+      <button class="btn-cl" onclick="closePdfModal()">✕</button>
+    </div>
+    <div class="pdf-modal-body">
+      <iframe id="pdfFrame" src=""></iframe>
+    </div>
+  </div>
+</div>
 
 <script>
   // ── DATA PER SKPD ──
@@ -966,6 +1037,105 @@
       seg.setAttribute('stroke-dasharray', `${len} ${CIRC - len + 0.5}`);
     }, 700 + i * 100);
     offset += len;
+  });
+
+  // ── REGULASI HIERARKI ──
+  const REGULASI = [
+    {
+      label: 'Peraturan Presiden', icon: '🏛️',
+      items: [
+        { num: 'PP No. 27 Tahun 2014', title: 'Pengelolaan Barang Milik Negara/Daerah', path: 'Peraturan Presiden/Peraturan Presiden Nomor 27 Tahun 2014 tentang Pengelolaan Barang Milik Negara - Daerah.pdf' },
+        { num: 'PP No. 28 Tahun 2020', title: 'Perubahan atas PP No. 27/2014', path: 'Peraturan Presiden/Peraturan Presiden Nomor 28 Tahun 2020 tentang Perubahan atas Peraturan Presiden Nomor 27 tahun 2014 tentang Pedoman Pengelolaan Barang Negara - Daerah.pdf' },
+      ]
+    },
+    {
+      label: 'Peraturan Menteri Dalam Negeri', icon: '📋',
+      items: [
+        { num: 'Permendagri No. 19/2016', title: 'Pedoman Pengelolaan BMD', path: 'Peraturan Menteri Dalam Negeri/Permendagri Nomor 19 Tahun 2016 tentang Pedoman Pengelolaan BMD.pdf' },
+        { num: 'Lampiran Permendagri No. 19/2016', title: 'Lampiran Pedoman Pengelolaan BMD', path: 'Peraturan Menteri Dalam Negeri/LAMPIRAN_Permendagri Nomor 19 Tahun 2016.pdf' },
+        { num: 'Permendagri No. 108/2016', title: 'Kodefikasi BMD', path: 'Peraturan Menteri Dalam Negeri/Permendagri Nomor 108 Tahun 2016 tentang Kodefikasi.pdf' },
+        { num: 'Permendagri No. 133/2018', title: 'Tuntutan Ganti Rugi (TGR)', path: 'Peraturan Menteri Dalam Negeri/Permendagri Nomor 133 Tahun 2018 tentang TGR.pdf' },
+        { num: 'Permendagri No. 1/2019', title: 'Penyusutan BMD', path: 'Peraturan Menteri Dalam Negeri/Permendagri Nomor 1 Tahun 2019 tentang Penyusutan BMD.pdf' },
+        { num: 'Permendagri No. 47/2021', title: 'Tata Cara Pelaporan BMD', path: 'Peraturan Menteri Dalam Negeri/Permendagri Nomor 47 tahun 2021 TATA CARA PELAKSANAAN PELAPORAN BMD.pdf' },
+        { num: 'Permendagri No. 7/2024', title: 'Pengelolaan BMD (terbaru)', path: 'Peraturan Menteri Dalam Negeri/Permendagri Nomor 7 Tahun 2024 tentang Pengelolaan BMD.pdf' },
+      ]
+    },
+    {
+      label: 'Peraturan Daerah', icon: '📜',
+      items: [
+        { num: 'Perda No. 3 Tahun 2019', title: 'Pengelolaan BMD Kab. Kediri', path: 'Peraturan Daerah/Perda no 3 tahun 2019.pdf' },
+      ]
+    },
+    {
+      label: 'Peraturan Bupati', icon: '📄',
+      items: [
+        { num: 'Perbup No. 30', title: 'Kebijakan Akuntansi', path: 'Peraturan Bupati/Perbup no 30 tentang Kebijakan Akuntansi.pdf' },
+        { num: 'Perbup No. 32/2020', title: 'Penggolongan dan Kodefikasi BMD', path: 'Peraturan Bupati/Perbup no 32 tahun 2020 tentang penggolongan dan kodefikasi.pdf' },
+        { num: 'Perbup No. 56/2020', title: 'Tarif Sewa BMD', path: 'Peraturan Bupati/Perbup no 56 tahun 2020 Tarif Sewa.pdf' },
+        { num: 'Perbup No. 62/2020', title: 'Tuntutan Ganti Rugi (TGR)', path: 'Peraturan Bupati/Perbup No. 62 Tahun 2020 Tentang TGR.pdf' },
+        { num: 'Perbup No. 51/2021', title: 'Petunjuk Teknis Inventarisasi Sensus BMD', path: 'Peraturan Bupati/Perbup no 51 tahun 2021 petunjuk-teknis-pelaksanaan-inventarisasisensus-barang-milik-daerah.pdf' },
+        { num: 'Perbup No. 62/2021', title: 'Sewa BMD', path: 'Peraturan Bupati/Perbup no 62 tahun 2021 Sewa (1).pdf' },
+        { num: 'Perbup No. 72/2022', title: 'Pemanfaatan BMD', path: 'Peraturan Bupati/Perbup no 72 tahun 2022 tentang pemanfaatan-barang-milik-daerah.pdf' },
+        { num: 'Perbup No. 102/2022', title: 'Tata Cara Pemindahtanganan BMD', path: 'Peraturan Bupati/Perbup no 102 tahun 2022 tentang tata-cara-pemindahtanganan-barang-milik-daerah.pdf' },
+        { num: 'Perbup No. 103/2022', title: 'Tata Cara Penghapusan BMD', path: 'Peraturan Bupati/Perbup no 103 tahun 2022 tentang tata-cara-penghapusan-barang-milik-daerah.pdf' },
+      ]
+    }
+  ];
+
+  (function buildRegulasiHierarchy() {
+    const container = document.getElementById('regHierarchy');
+    if (!container) return;
+    REGULASI.forEach((cat, i) => {
+      const col = document.createElement('div');
+      col.className = 'reg-col';
+      const itemsHtml = cat.items.map((item, j) => `
+        <div class="reg-item" onclick="openPdf(${i},${j})">
+          <div class="reg-item-dot"></div>
+          <div class="reg-item-info">
+            <div class="reg-item-num">${item.num}</div>
+            <div class="reg-item-title">${item.title}</div>
+          </div>
+          <span class="reg-item-pdf-icon">📄</span>
+        </div>`).join('');
+      col.innerHTML = `
+        <div class="reg-cat-header" onclick="toggleRegCat(${i})" id="reg-head-${i}">
+          <span class="reg-cat-emoji">${cat.icon}</span>
+          <span class="reg-cat-label">${cat.label}</span>
+          <span class="reg-cat-chevron">▼</span>
+        </div>
+        <div class="reg-cat-body" id="reg-body-${i}">${itemsHtml}</div>`;
+      container.appendChild(col);
+    });
+  })();
+
+  function toggleRegCat(i) {
+    document.getElementById('reg-head-' + i).classList.toggle('open');
+    document.getElementById('reg-body-' + i).classList.toggle('open');
+  }
+
+  function openPdf(catIdx, itemIdx) {
+    const item = REGULASI[catIdx].items[itemIdx];
+    const encodedPath = item.path.split('/').map(encodeURIComponent).join('/');
+    const url = './assets/pdf/' + encodedPath;
+    document.getElementById('pdfTitle').textContent = item.title;
+    document.getElementById('pdfNum').textContent = item.num;
+    document.getElementById('pdfFrame').src = url;
+    const dlBtn = document.getElementById('pdfDownload');
+    dlBtn.href = url;
+    dlBtn.setAttribute('download', item.path.split('/').pop());
+    document.getElementById('pdfOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePdfModal(e) {
+    if (e && e.target !== document.getElementById('pdfOverlay')) return;
+    document.getElementById('pdfOverlay').classList.remove('open');
+    document.getElementById('pdfFrame').src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePdfModal();
   });
 </script>
 </body>
