@@ -1149,13 +1149,15 @@
   function openPdf(catIdx, itemIdx) {
     const item = REGULASI[catIdx].items[itemIdx];
     const encodedPath = item.path.split('/').map(encodeURIComponent).join('/');
-    const url = './assets/pdf/' + encodedPath;
+    const rawUrl = 'https://raw.githubusercontent.com/dimsventures/Landing-Page-BMD/main/assets/pdf/' + encodedPath;
+    const viewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(rawUrl) + '&embedded=true';
     document.getElementById('pdfTitle').textContent = item.title;
     document.getElementById('pdfNum').textContent = item.num;
-    document.getElementById('pdfFrame').src = url;
+    document.getElementById('pdfFrame').src = viewerUrl;
     const dlBtn = document.getElementById('pdfDownload');
-    dlBtn.href = url;
-    dlBtn.setAttribute('download', item.path.split('/').pop());
+    dlBtn.href = rawUrl;
+    dlBtn.removeAttribute('download');
+    dlBtn.target = '_blank';
     document.getElementById('pdfOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
