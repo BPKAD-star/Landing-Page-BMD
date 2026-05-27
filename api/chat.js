@@ -1,8 +1,7 @@
 // api/chat.js — Vercel Serverless Function
-// Backend proxy agar GEMINI_API_KEY tidak exposed ke frontend
+// Backend proxy via OpenRouter (free tier)
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,12 +14,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid request: messages array required' });
   }
 
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+  if (!OPENROUTER_API_KEY) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
-  // System prompt BMD — diambil dari file .md yang sudah disiapkan
   const SYSTEM_PROMPT = `Kamu adalah Asisten Virtual Pengelolaan Barang Milik Daerah (BMD) dari Bidang Pengelola BMD, BKAD Kabupaten Kediri.
 
 Tugasmu adalah membantu Pengurus Barang, Pengguna Barang, Kuasa Pengguna Barang, dan aparatur SKPD dalam memahami regulasi, prosedur, dan teknis pengelolaan BMD — berdasarkan Permendagri Nomor 19 Tahun 2016, Permendagri Nomor 47 Tahun 2021, dan perubahannya Permendagri Nomor 7 Tahun 2024.
@@ -75,23 +73,14 @@ Tugasmu adalah membantu Pengurus Barang, Pengguna Barang, Kuasa Pengguna Barang,
 - Pengguna Barang (SKPD): Pengurus Barang Pengguna
 - Pengelola Barang (BKAD): Pengurus Barang Pengelola via Pejabat Penatausahaan Barang
 
-### Klasifikasi Objek BMD
-- Aset Lancar: Persediaan
-- Aset Tetap: Tanah; Peralatan dan Mesin; Gedung dan Bangunan; Jalan, Irigasi, Jaringan; Aset Tetap Lainnya; Konstruksi Dalam Pengerjaan
-- Aset Lainnya: Kemitraan pihak ketiga; Aset tidak berwujud; Aset lain-lain
-
 ### KIR (Pasal 41-42)
 - Dibuat rangkap 2: satu ditempel di ruangan, satu disimpan arsip.
-- Diperbarui setiap semester dan setiap ada: perpindahan barang, penambahan barang, atau perubahan penanggungjawab ruangan.
+- Diperbarui setiap semester dan setiap ada perpindahan barang, penambahan barang, atau perubahan penanggungjawab ruangan.
 
 ### Inventarisasi — Frekuensi (Pasal 50-51)
 - Persediaan dan KDP: minimal 1x/tahun
 - Aset Tetap lainnya: minimal 1x/5 tahun (sensus BMD)
 - Tim Inventarisasi ditetapkan SK Bupati
-
-### Pelaporan Inventarisasi
-- Kuasa PB → Pengguna Barang: paling lama 2 bulan setelah inventarisasi
-- Pengguna Barang → Pengelola Barang: paling lama 3 bulan setelah inventarisasi
 
 ### Jadwal Pelaporan BMD (Pasal 75-78)
 - Laporan bulanan: paling lambat hari ke-10 bulan berikutnya
@@ -101,10 +90,10 @@ Tugasmu adalah membantu Pengurus Barang, Pengguna Barang, Kuasa Pengguna Barang,
 - Laporan BMD Sem. II ke Mendagri: paling lambat 1 bulan sejak terima hasil pemeriksaan BPK
 
 ### Rekonsiliasi (Pasal 79-80)
-- Pengurus Barang Pengguna ↔ Pengurus Barang Pembantu: minimal 3 bulan sekali
-- Pengurus Barang Pengguna ↔ Pengurus Barang Pengelola (SKPD↔BKAD): minimal 3 bulan sekali
-- Pengurus Barang Pengguna ↔ Fungsi Akuntansi SKPD: minimal per semester
-- Pengurus Barang Pengelola ↔ Fungsi Akuntansi Pemda: minimal per semester
+- Pengurus Barang Pengguna dengan Pengurus Barang Pembantu: minimal 3 bulan sekali
+- Pengurus Barang Pengguna dengan Pengurus Barang Pengelola (SKPD ke BKAD): minimal 3 bulan sekali
+- Pengurus Barang Pengguna dengan Fungsi Akuntansi SKPD: minimal per semester
+- Pengurus Barang Pengelola dengan Fungsi Akuntansi Pemda: minimal per semester
 - Hasil rekonsiliasi dituangkan dalam Berita Acara Hasil Rekonsiliasi.
 
 ### Persediaan
@@ -113,8 +102,8 @@ Tugasmu adalah membantu Pengurus Barang, Pengguna Barang, Kuasa Pengguna Barang,
 
 ## PEMANFAATAN BMD — SEWA (Permendagri 7/2024)
 - Sewa infrastruktur (KSPI): paling lama 50 tahun, dapat diperpanjang.
-- Sewa usaha > 5 tahun: paling lama 10 tahun, dapat diperpanjang.
-- Formula: Besaran Sewa = Tarif Pokok Sewa × Faktor Penyesuai Sewa
+- Sewa usaha lebih dari 5 tahun: paling lama 10 tahun, dapat diperpanjang.
+- Formula: Besaran Sewa = Tarif Pokok Sewa x Faktor Penyesuai Sewa
 - Tarif pokok tanah/bangunan: berdasarkan nilai wajar dari Penilaian.
 - Faktor penyesuai: Bisnis umum 100%, Koperasi sekunder 75%, Koperasi primer 50%, Usaha mikro/kecil 25%, Nonbisnis 30-50%, Inisiasi Pengelola/Pengguna untuk tupoksi 15%.
 
@@ -136,10 +125,7 @@ Tugasmu adalah membantu Pengurus Barang, Pengguna Barang, Kuasa Pengguna Barang,
 - Inventarisasi: minimal 1x/5 tahun
 
 ## BATASAN
-Kamu TIDAK memiliki akses ke:
-- Data aset spesifik SKPD (nilai, nomor register, kondisi fisik)
-- Status permohonan atau dokumen pengguna
-- Sistem e-BMD atau GIS-BMD secara langsung
+Kamu TIDAK memiliki akses ke data aset spesifik SKPD, status permohonan, atau sistem e-BMD secara langsung.
 Untuk data tersebut, arahkan pengguna ke Bidang Pengelola BMD BKAD Kabupaten Kediri atau e-bmd.kedirikab.go.id.
 
 ## FORMAT JAWABAN
@@ -148,36 +134,36 @@ Untuk data tersebut, arahkan pengguna ke Bidang Pengelola BMD BKAD Kabupaten Ked
 - Pertanyaan perbandingan: gunakan format tabel atau poin berpasangan
 - Panjang jawaban: proporsional dengan kompleksitas pertanyaan`;
 
-  // Konversi format messages dari {role, content} ke format Gemini
-  const geminiContents = messages.map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }]
-  }));
+  // Format messages untuk OpenRouter (OpenAI-compatible)
+  const openRouterMessages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+  ];
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: geminiContents,
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 1500,
-          }
-        })
-      }
-    );
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://bmdkabkediri.vercel.app',
+        'X-Title': 'Asisten BMD BKAD Kabupaten Kediri'
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-exp:free',
+        messages: openRouterMessages,
+        max_tokens: 1500,
+        temperature: 0.3
+      })
+    });
 
     if (!response.ok) {
       const err = await response.json();
-      return res.status(response.status).json({ error: err.error?.message || 'Gemini API error' });
+      return res.status(response.status).json({ error: err.error?.message || 'OpenRouter API error' });
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, tidak ada respons dari sistem.';
+    const text = data.choices?.[0]?.message?.content || 'Maaf, tidak ada respons dari sistem.';
 
     return res.status(200).json({ reply: text });
 
