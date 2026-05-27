@@ -1,5 +1,5 @@
 // api/chat.js — Vercel Serverless Function
-// Backend proxy via OpenRouter (free tier)
+// Backend proxy via Anthropic Claude API
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,8 +14,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid request: messages array required' });
   }
 
-  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-  if (!OPENROUTER_API_KEY) {
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+  if (!ANTHROPIC_API_KEY) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
@@ -104,7 +104,6 @@ Tugasmu adalah membantu Pengurus Barang, Pengguna Barang, Kuasa Pengguna Barang,
 - Sewa infrastruktur (KSPI): paling lama 50 tahun, dapat diperpanjang.
 - Sewa usaha lebih dari 5 tahun: paling lama 10 tahun, dapat diperpanjang.
 - Formula: Besaran Sewa = Tarif Pokok Sewa x Faktor Penyesuai Sewa
-- Tarif pokok tanah/bangunan: berdasarkan nilai wajar dari Penilaian.
 - Faktor penyesuai: Bisnis umum 100%, Koperasi sekunder 75%, Koperasi primer 50%, Usaha mikro/kecil 25%, Nonbisnis 30-50%, Inisiasi Pengelola/Pengguna untuk tupoksi 15%.
 
 ## PEMINDAHTANGANAN
@@ -134,36 +133,35 @@ Untuk data tersebut, arahkan pengguna ke Bidang Pengelola BMD BKAD Kabupaten Ked
 - Pertanyaan perbandingan: gunakan format tabel atau poin berpasangan
 - Panjang jawaban: proporsional dengan kompleksitas pertanyaan`;
 
-  // Format messages untuk OpenRouter (OpenAI-compatible)
-  const openRouterMessages = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    ...messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-  ];
+  // Format messages untuk Anthropic API
+  const anthropicMessages = messages.map(m => ({
+    role: m.role === 'assistant' ? 'assistant' : 'user',
+    content: m.content
+  }));
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://bmdkabkediri.vercel.app',
-        'X-Title': 'Asisten BMD BKAD Kabupaten Kediri'
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-v4-flash:free',
-        messages: openRouterMessages,
-        max_tokens: 1500,
-        temperature: 0.3
+        model: 'claude-haiku-4-5',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: anthropicMessages
       })
     });
 
     if (!response.ok) {
       const err = await response.json();
-      return res.status(response.status).json({ error: err.error?.message || 'OpenRouter API error' });
+      return res.status(response.status).json({ error: err.error?.message || 'Anthropic API error' });
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || 'Maaf, tidak ada respons dari sistem.';
+    const text = data.content?.[0]?.text || 'Maaf, tidak ada respons dari sistem.';
 
     return res.status(200).json({ reply: text });
 
