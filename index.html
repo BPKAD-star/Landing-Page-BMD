@@ -410,6 +410,10 @@
     background: white; border-radius: 14px; width: 100%; max-width: 880px;
     max-height: 90vh; display: flex; flex-direction: column;
     box-shadow: 0 25px 60px rgba(0,0,0,0.35); overflow: hidden;
+    transition: max-width 0.3s ease, max-height 0.3s ease, border-radius 0.3s ease;
+  }
+  .pdf-modal.wide {
+    max-width: 97vw; max-height: 97vh; border-radius: 8px;
   }
   .pdf-modal-head {
     display: flex; align-items: center; gap: 0.75rem;
@@ -425,15 +429,16 @@
     cursor: pointer; text-decoration: none; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
   }
   .btn-dl:hover { background: #1d4ed8; }
-  .btn-cl {
+  .btn-cl, .btn-expand {
     width: 32px; height: 32px; border: 1px solid var(--border-soft); background: white;
     border-radius: 7px; cursor: pointer; font-size: 1rem;
     display: flex; align-items: center; justify-content: center;
     color: var(--text-dark); transition: background 0.15s; flex-shrink: 0;
   }
-  .btn-cl:hover { background: #f1f5f9; }
+  .btn-cl:hover, .btn-expand:hover { background: #f1f5f9; }
   .pdf-modal-body { flex: 1; overflow: hidden; }
   .pdf-modal-body iframe { width: 100%; height: 100%; min-height: 65vh; border: none; display: block; }
+  .pdf-modal.wide .pdf-modal-body iframe { min-height: calc(97vh - 64px); }
   @media (max-width: 768px) {
     .reg-hierarchy { flex-direction: column; }
     .reg-col { min-width: unset; width: 100%; }
@@ -1040,8 +1045,7 @@
           <div class="sos-event-meta">Tata cara inventarisasi &amp; pencatatan aset tanah BMD</div>
         </div>
         <div class="sos-event-actions">
-          <a class="sos-btn-open" href="sosialisasi/inventarisasi-tanah.html" target="_blank">▶ Buka</a>
-          <a class="sos-btn-dl disabled" onclick="openSosPdf('inventarisasi-tanah.pdf','Sosialisasi Inventarisasi Tanah')">⬇ PDF</a>
+          <a class="sos-btn-open" onclick="openSosPdf('inventarisasi_tanah.pdf','Sosialisasi Inventarisasi Tanah')">📄 Lihat Materi</a>
         </div>
       </div>
 
@@ -1052,8 +1056,7 @@
           <div class="sos-event-meta">Tata cara inventarisasi &amp; pencatatan aset gedung dan bangunan</div>
         </div>
         <div class="sos-event-actions">
-          <a class="sos-btn-open disabled" href="sosialisasi/inventarisasi-gedung.html" target="_blank">▶ Buka</a>
-          <a class="sos-btn-dl disabled" onclick="openSosPdf('inventarisasi-gedung.pdf','Sosialisasi Inventarisasi Gedung dan Bangunan')">⬇ PDF</a>
+          <a class="sos-btn-open disabled" onclick="openSosPdf('inventarisasi_gedung.pdf','Sosialisasi Inventarisasi Gedung dan Bangunan')">📄 Lihat Materi</a>
         </div>
       </div>
 
@@ -1064,8 +1067,7 @@
           <div class="sos-event-meta">Tata cara pemasangan label BMD &amp; pengisian KIR</div>
         </div>
         <div class="sos-event-actions">
-          <a class="sos-btn-open disabled" href="sosialisasi/labelisasi-kir.html" target="_blank">▶ Buka</a>
-          <a class="sos-btn-dl disabled" onclick="openSosPdf('labelisasi-kir.pdf','Sosialisasi Labelisasi dan Kartu Inventaris Ruangan')">⬇ PDF</a>
+          <a class="sos-btn-open disabled" onclick="openSosPdf('labelisasi_kir.pdf','Sosialisasi Labelisasi dan Kartu Inventaris Ruangan')">📄 Lihat Materi</a>
         </div>
       </div>
 
@@ -1075,13 +1077,16 @@
 
 <!-- PDF MODAL -->
 <div class="pdf-overlay" id="pdfOverlay" onclick="closePdfModal(event)">
-  <div class="pdf-modal">
+  <div class="pdf-modal" id="pdfModal">
     <div class="pdf-modal-head">
       <div class="pdf-modal-info">
         <div class="pdf-modal-title" id="pdfTitle">-</div>
         <div class="pdf-modal-num" id="pdfNum">-</div>
       </div>
       <a class="btn-dl" id="pdfDownload" href="#" download target="_blank">⬇ Unduh PDF</a>
+      <button class="btn-expand" id="btnExpand" onclick="togglePdfWide()" title="Perluas tampilan">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
       <button class="btn-cl" onclick="closePdfModal()">✕</button>
     </div>
     <div class="pdf-modal-body">
@@ -1380,6 +1385,8 @@
     if (e && e.target !== document.getElementById('pdfOverlay')) return;
     document.getElementById('pdfOverlay').classList.remove('open');
     document.getElementById('pdfFrame').src = '';
+    document.getElementById('pdfModal').classList.remove('wide');
+    updateExpandIcon(false);
     document.body.style.overflow = '';
   }
 
@@ -1897,7 +1904,6 @@
     const rawUrl = 'https://raw.githubusercontent.com/dimsventures/Landing-Page-BMD/main/assets/pdf/Sosialisasi/' + encodeURIComponent(filename);
     const viewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(rawUrl) + '&embedded=true';
     document.getElementById('sosOverlay').classList.remove('open');
-    document.body.style.overflow = '';
     document.getElementById('pdfTitle').textContent = title;
     document.getElementById('pdfNum').textContent = 'Materi Sosialisasi BMD · BKAD Kab. Kediri';
     document.getElementById('pdfFrame').src = viewerUrl;
@@ -1905,8 +1911,28 @@
     dlBtn.href = rawUrl;
     dlBtn.removeAttribute('download');
     dlBtn.target = '_blank';
+    // Auto wide untuk slidedeck
+    document.getElementById('pdfModal').classList.add('wide');
+    updateExpandIcon(true);
     document.getElementById('pdfOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  function togglePdfWide() {
+    const modal = document.getElementById('pdfModal');
+    const isWide = modal.classList.toggle('wide');
+    updateExpandIcon(isWide);
+  }
+
+  function updateExpandIcon(isWide) {
+    const btn = document.getElementById('btnExpand');
+    if (isWide) {
+      btn.title = 'Perkecil tampilan';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>';
+    } else {
+      btn.title = 'Perluas tampilan';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+    }
   }
 
   // ── SOSIALISASI MODAL ──
