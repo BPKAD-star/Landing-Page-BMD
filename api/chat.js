@@ -1,5 +1,5 @@
 // api/chat.js — Vercel Serverless Function
-// Backend proxy via Anthropic Claude API
+// RAG: Voyage AI (embed) + Supabase (retrieval) + Claude Haiku (generate)
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,16 +10,71 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { messages } = req.body;
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Invalid request: messages array required' });
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Invalid request' });
   }
 
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-  if (!ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'API key not configured' });
+  const VOYAGE_API_KEY    = process.env.VOYAGE_API_KEY;
+  const SUPABASE_URL      = process.env.SUPABASE_URL;
+  const SUPABASE_KEY      = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!ANTHROPIC_API_KEY || !VOYAGE_API_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
+    return res.status(500).json({ error: 'Missing environment variables' });
   }
 
-  const SYSTEM_PROMPT = `Kamu adalah Asisten BMD dari BKAD Kabupaten Kediri. Bantu aparatur SKPD memahami regulasi dan prosedur pengelolaan Barang Milik Daerah.
+  const userQuery = messages[messages.length - 1].content;
+
+  // ── STEP 1: Embed query user via Voyage AI ──────────────────────
+  let queryEmbedding;
+  try {
+    const embedRes = await fetch('https://api.voyageai.com/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${VOYAGE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        input: [userQuery],
+        model: 'voyage-3-lite'
+      })
+    });
+    if (!embedRes.ok) throw new Error(`Voyage error ${embedRes.status}`);
+    const embedData = await embedRes.json();
+    queryEmbedding = embedData.data[0].embedding;
+  } catch (err) {
+    console.error('Embedding error:', err);
+    // Fallback: tetap jawab tanpa RAG kalau Voyage gagal
+    queryEmbedding = null;
+  }
+
+  // ── STEP 2: Cari pasal relevan di Supabase ──────────────────────
+  let contextChunks = [];
+  if (queryEmbedding) {
+    try {
+      const searchRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/match_regulasi`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query_embedding: queryEmbedding,
+          match_threshold: 0.5,
+          match_count: 4
+        })
+      });
+      if (searchRes.ok) {
+        contextChunks = await searchRes.json();
+      }
+    } catch (err) {
+      console.error('Supabase search error:', err);
+    }
+  }
+
+  // ── STEP 3: Build system prompt dengan konteks pasal ───────────
+  const BASE_SYSTEM = `Kamu adalah Asisten BMD dari BKAD Kabupaten Kediri. Bantu aparatur SKPD memahami regulasi dan prosedur pengelolaan Barang Milik Daerah.
 
 ATURAN JAWABAN:
 - Jawab singkat dan langsung ke inti. Maksimal 5 kalimat untuk pertanyaan sederhana.
@@ -32,46 +87,25 @@ DASAR HUKUM:
 - PP 27/2014 jo PP 28/2020
 - Permendagri 19/2016 (pedoman pokok)
 - Permendagri 47/2021 (teknis penatausahaan)
-- Permendagri 7/2024 (perubahan terbaru)
+- Permendagri 7/2024 (perubahan terbaru)`;
 
-DEFINISI KUNCI:
-- BMD: barang dibeli/diperoleh atas beban APBD atau perolehan sah lainnya.
-- Pengelola Barang: Sekretaris Daerah
-- Pengguna Barang: Kepala SKPD
-- Kuasa Pengguna Barang: Kepala Unit Kerja
-- Pengurus Barang Pengguna: ASN yang menatausahakan BMD di SKPD
-- Pengurus Barang Pembantu: ASN yang menatausahakan BMD di unit kerja
-- KIR: Kartu Inventaris Ruangan, diperbarui tiap semester, rangkap 2
-- KIBAR: Kartu Identitas Barang, rekam jejak transaksi setiap BMD
-- NIBAR: Nomor Induk Barang, kode permanen sejak perolehan pertama
-- Intrakomptabel: Aset Tetap yang memenuhi kriteria kapitalisasi
-- Rekonsiliasi: pencocokan data BMD antara SKPD dan BKAD
+  let systemPrompt = BASE_SYSTEM;
 
-SIKLUS BMD (Permendagri 19/2016 Pasal 2):
-Perencanaan - Pengadaan - Penggunaan - Pemanfaatan - Pengamanan & Pemeliharaan - Penilaian - Pemindahtanganan - Pemusnahan - Penghapusan - Penatausahaan - Pengawasan & Pengendalian
+  if (contextChunks.length > 0) {
+    const pasalContext = contextChunks
+      .map(c => `[${c.source} - ${c.pasal}]\n${c.content}`)
+      .join('\n\n');
+    systemPrompt += `\n\nPASAL RELEVAN DARI DATABASE REGULASI:\n${pasalContext}\n\nGunakan pasal di atas sebagai referensi utama untuk menjawab pertanyaan. Sebutkan sumber pasalnya.`;
+  }
 
-PENATAUSAHAAN (Permendagri 47/2021):
-- Inventarisasi persediaan & KDP: minimal 1x/tahun
-- Inventarisasi aset tetap lainnya: minimal 1x/5 tahun (sensus BMD)
-- Laporan bulanan: paling lambat hari ke-10 bulan berikutnya
-- Laporan Semester I: paling lambat minggu ke-4 Juli
-- Laporan Semester II: paling lambat minggu ke-2 Februari tahun berikutnya
-- Rekonsiliasi SKPD-BKAD: minimal 3 bulan sekali
-- Rekonsiliasi dengan fungsi akuntansi: minimal per semester
-
-SEWA BMD (Permendagri 7/2024):
-- Formula: Besaran Sewa = Tarif Pokok x Faktor Penyesuai
-- Faktor penyesuai: bisnis 100%, koperasi sekunder 75%, koperasi primer 50%, usaha mikro 25%, nonbisnis 30-50%
-
-BATASAN: Tidak bisa akses data aset spesifik SKPD. Arahkan ke BKAD atau e-bmd.kedirikab.go.id.`;
-
+  // ── STEP 4: Call Claude Haiku ───────────────────────────────────
   const anthropicMessages = messages.map(m => ({
     role: m.role === 'assistant' ? 'assistant' : 'user',
     content: m.content
   }));
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
@@ -81,23 +115,22 @@ BATASAN: Tidak bisa akses data aset spesifik SKPD. Arahkan ke BKAD atau e-bmd.ke
       body: JSON.stringify({
         model: 'claude-haiku-4-5',
         max_tokens: 512,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: anthropicMessages
       })
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      return res.status(response.status).json({ error: err.error?.message || 'Anthropic API error' });
+    if (!claudeRes.ok) {
+      const err = await claudeRes.json();
+      return res.status(claudeRes.status).json({ error: err.error?.message || 'Claude error' });
     }
 
-    const data = await response.json();
-    const text = data.content?.[0]?.text || 'Maaf, tidak ada respons dari sistem.';
-
+    const claudeData = await claudeRes.json();
+    const text = claudeData.content?.[0]?.text || 'Maaf, tidak ada respons.';
     return res.status(200).json({ reply: text });
 
   } catch (err) {
-    console.error('Chat API error:', err);
+    console.error('Claude error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
