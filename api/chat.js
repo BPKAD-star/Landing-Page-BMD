@@ -150,7 +150,7 @@ Untuk data tersebut, arahkan pengguna ke Bidang Pengelola BMD BKAD Kabupaten Ked
         'X-Title': 'Asisten BMD BKAD Kabupaten Kediri'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'google/gemini-2.0-flash-001:free',
         messages: openRouterMessages,
         max_tokens: 1500,
         temperature: 0.3
