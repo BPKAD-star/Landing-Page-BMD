@@ -150,7 +150,7 @@ Untuk data tersebut, arahkan pengguna ke Bidang Pengelola BMD BKAD Kabupaten Ked
         'X-Title': 'Asisten BMD BKAD Kabupaten Kediri'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        model: 'deepseek/deepseek-v4-flash:free',
         messages: openRouterMessages,
         max_tokens: 1500,
         temperature: 0.3
