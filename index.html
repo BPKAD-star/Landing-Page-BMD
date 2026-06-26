@@ -350,6 +350,122 @@
   .siklus-label { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.4rem; }
   .siklus-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
 
+  /* ── COVERFLOW CAROUSEL ── */
+  .coverflow { position: relative; margin: 0 -5vw; }
+  .cf-viewport {
+    overflow: hidden;
+    padding: 3rem 0 3.25rem;
+    cursor: grab;
+    -webkit-user-select: none; user-select: none;
+    touch-action: pan-y;
+  }
+  .cf-viewport:active { cursor: grabbing; }
+  .cf-viewport:focus-visible { outline: none; }
+  .cf-track {
+    display: flex; align-items: center;
+    gap: 1.25rem;
+    will-change: transform;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cf-track.no-anim { transition: none; }
+  .cf-card {
+    flex: 0 0 auto;
+    width: 268px;
+    min-height: 348px;
+    box-sizing: border-box;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    box-shadow: var(--shadow-sm);
+    padding: 1.75rem;
+    display: flex; flex-direction: column;
+    transform: scale(0.82);
+    opacity: 0.4;
+    transform-origin: center center;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease, box-shadow 0.55s ease, border-color 0.3s ease;
+  }
+  .cf-card:not(.is-active) { cursor: pointer; }
+  .cf-card.is-active {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: var(--shadow-lg);
+    border-color: var(--blue-accent);
+    position: relative;
+    z-index: 2;
+    cursor: default;
+  }
+  /* nav buttons */
+  .cf-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    z-index: 5;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 50%;
+    box-shadow: var(--shadow-md);
+    color: var(--blue-brand);
+    font-size: 1.4rem; line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, opacity 0.25s;
+  }
+  .cf-nav:hover { background: var(--blue-ice); }
+  .cf-nav:active { transform: translateY(-50%) scale(0.92); }
+  .cf-prev { left: 5vw; }
+  .cf-next { right: 5vw; }
+  .cf-nav[disabled] { opacity: 0.3; pointer-events: none; }
+  /* hint */
+  .cf-hint {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+  .cf-hint span { color: var(--blue-brand); }
+
+  /* siklus card inside coverflow */
+  .cf-card.cf-siklus { justify-content: flex-start; }
+
+  /* SKPD card */
+  .cf-card.cf-skpd { align-items: center; text-align: center; }
+  .cf-photo {
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    background: var(--blue-ice);
+    border: 2px solid var(--blue-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: var(--blue-brand);
+    margin-bottom: 1.1rem;
+    overflow: hidden;
+    flex: 0 0 auto;
+    background-size: cover; background-position: center;
+  }
+  .cf-card.is-active .cf-photo { box-shadow: 0 0 0 4px var(--blue-pale); }
+  .cf-skpd-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.08em;
+    color: var(--text-muted); text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .cf-skpd-name {
+    font-size: 0.95rem; font-weight: 600; color: var(--text-dark);
+    line-height: 1.35; margin-bottom: 0.9rem;
+    display: flex; align-items: center; min-height: 2.7em;
+  }
+  .cf-skpd-divider { width: 36px; height: 2px; background: var(--blue-accent); border-radius: 2px; margin: 0 auto 0.9rem; }
+  .cf-skpd-total-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 0.25rem;
+  }
+  .cf-skpd-total {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.55rem; color: var(--blue-brand); line-height: 1.1;
+    margin-top: auto;
+  }
+
   /* ── REGULASI HIERARKI ── */
   .reg-hierarchy { display: flex; align-items: flex-start; gap: 1rem; overflow-x: auto; padding-bottom: 1.5rem; }
   .reg-col { flex: 1; min-width: 190px; }
@@ -598,16 +714,6 @@
   .edu-title { font-size: 0.95rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.45rem; }
   .edu-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
 
-  /* ── ARTIKEL ── */
-  .artikel-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.5rem; }
-  @media(max-width:900px){.artikel-grid{grid-template-columns:1fr;}}
-  .artikel-card { padding: 1.8rem; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--bg-card); box-shadow: var(--shadow-sm); transition: all 0.25s; cursor: pointer; }
-  .artikel-card:hover { border-color: var(--blue-accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .artikel-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--blue-brand); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 0.7rem; }
-  .artikel-title { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--text-dark); line-height: 1.35; margin-bottom: 0.7rem; }
-  .artikel-card.big .artikel-title { font-size: 1.45rem; }
-  .artikel-excerpt { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
-
   /* ── DIVIDER ── */
   .divider { width: 100%; height: 1px; background: var(--border-soft); }
 
@@ -691,6 +797,51 @@
   [data-theme="dark"] .theme-icon-sun { display: block; }
   [data-theme="dark"] .theme-icon-moon { display: none; }
 
+  /* ── NAV RIGHT / HAMBURGER ── */
+  .nav-right { display: flex; align-items: center; gap: 0.6rem; }
+  .nav-hamburger {
+    display: none;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    cursor: pointer;
+    align-items: center; justify-content: center;
+    color: var(--text-dark);
+    font-size: 1.2rem; line-height: 1;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .nav-hamburger:hover { background: var(--blue-ice); border-color: var(--blue-accent); color: var(--blue-brand); }
+
+  .nav-mobile-menu {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 64px; left: 0; right: 0;
+    z-index: 99;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-md);
+    padding: 0.25rem 5vw 1rem;
+  }
+  .nav-mobile-menu.open { display: flex; }
+  .nav-mobile-menu a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .nav-mobile-menu a:last-of-type { border-bottom: none; }
+  .nav-mobile-menu a:hover { color: var(--blue-brand); }
+  .nav-mobile-menu .nav-cta {
+    text-align: center;
+    margin-top: 0.75rem;
+    padding: 0.7rem 1.2rem;
+  }
+
   /* ── DARK MODE ── */
   [data-theme="dark"] {
     --bg-base: #0F172A;
@@ -741,6 +892,7 @@
 
   @media(max-width:768px){
     .nav-links{display:none;}
+    .nav-hamburger{display:flex;}
     .hero-stat-row{position:static;justify-content:center;margin-top:3rem;flex-wrap:wrap;}
     .hero-stat:first-child{border-radius:12px 0 0 12px !important;}
     .hero-stat:last-child{border-radius:0 12px 12px 0 !important;}
@@ -759,14 +911,25 @@
     <li><a href="#organisasi">Organisasi</a></li>
     <li><a href="#layanan">Layanan</a></li>
     <li><a href="https://e-bmd.kedirikab.go.id" target="_blank" class="nav-cta">e-BMD →</a></li>
-    <li>
-      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Ganti tema">
-        <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-    </li>
   </ul>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Ganti tema">
+      <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="nav-hamburger" id="navHamburgerBtn" onclick="toggleMobileMenu()" aria-label="Buka menu navigasi">☰</button>
+  </div>
 </nav>
+
+<!-- MOBILE NAV MENU -->
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="#nilai" onclick="closeMobileMenu()">Nilai BMD</a>
+  <a href="#regulasi" onclick="closeMobileMenu()">Regulasi</a>
+  <a href="#siklus" onclick="closeMobileMenu()">Siklus</a>
+  <a href="#organisasi" onclick="closeMobileMenu()">Organisasi</a>
+  <a href="#layanan" onclick="closeMobileMenu()">Layanan</a>
+  <a href="https://e-bmd.kedirikab.go.id" target="_blank" class="nav-cta">e-BMD →</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -861,17 +1024,24 @@
     <h2 class="section-title">Siklus Pengelolaan BMD</h2>
     <p class="section-desc">Pengelolaan Barang Milik Daerah mengikuti siklus yang terstruktur sesuai Permendagri No. 19 Tahun 2016.</p>
   </div>
-  <div class="siklus-grid reveal">
-    <div class="siklus-card"><div class="siklus-num">01</div><div class="siklus-label">Perencanaan Kebutuhan</div><div class="siklus-desc">Identifikasi kebutuhan dan penganggaran BMD berdasarkan standar kebutuhan barang.</div></div>
-    <div class="siklus-card"><div class="siklus-num">02</div><div class="siklus-label">Pengadaan</div><div class="siklus-desc">Pelaksanaan pengadaan BMD sesuai ketentuan pengadaan barang/jasa pemerintah.</div></div>
-    <div class="siklus-card"><div class="siklus-num">03</div><div class="siklus-label">Penggunaan</div><div class="siklus-desc">Penetapan status penggunaan BMD oleh Pengelola Barang kepada Pengguna Barang.</div></div>
-    <div class="siklus-card"><div class="siklus-num">04</div><div class="siklus-label">Pemanfaatan</div><div class="siklus-desc">Pendayagunaan BMD yang tidak digunakan sesuai tupoksi (Sewa, Pinjam Pakai, KSP, BGS/BSG).</div></div>
-    <div class="siklus-card"><div class="siklus-num">05</div><div class="siklus-label">Pengamanan & Pemeliharaan</div><div class="siklus-desc">Pengamanan fisik, administrasi, dan hukum, serta pemeliharaan kondisi BMD.</div></div>
-    <div class="siklus-card"><div class="siklus-num">06</div><div class="siklus-label">Penilaian</div><div class="siklus-desc">Penentuan nilai BMD untuk penyusunan neraca, pemanfaatan, atau pemindahtanganan.</div></div>
-    <div class="siklus-card"><div class="siklus-num">07</div><div class="siklus-label">Pemindahtanganan</div><div class="siklus-desc">Pengalihan kepemilikan BMD melalui penjualan, tukar menukar, hibah, atau penyertaan modal.</div></div>
-    <div class="siklus-card"><div class="siklus-num">08</div><div class="siklus-label">Penatausahaan</div><div class="siklus-desc">Pencatatan, inventarisasi, pelaporan, dan rekonsiliasi BMD secara sistematis.</div></div>
-    <div class="siklus-card"><div class="siklus-num">09</div><div class="siklus-label">Penghapusan</div><div class="siklus-desc">Penghapusan BMD dari daftar barang pengguna berdasarkan SK penghapusan resmi.</div></div>
-    <div class="siklus-card"><div class="siklus-num">10</div><div class="siklus-label">Pengawasan & Pengendalian</div><div class="siklus-desc">Monitoring dan evaluasi pengelolaan BMD untuk memastikan kepatuhan dan efektivitas.</div></div>
+  <div class="coverflow reveal" data-coverflow>
+    <button class="cf-nav cf-prev" type="button" aria-label="Sebelumnya">‹</button>
+    <button class="cf-nav cf-next" type="button" aria-label="Berikutnya">›</button>
+    <div class="cf-viewport" tabindex="0">
+      <div class="cf-track">
+        <div class="cf-card cf-siklus"><div class="siklus-num">01</div><div class="siklus-label">Perencanaan Kebutuhan</div><div class="siklus-desc">Identifikasi kebutuhan dan penganggaran BMD berdasarkan standar kebutuhan barang.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">02</div><div class="siklus-label">Pengadaan</div><div class="siklus-desc">Pelaksanaan pengadaan BMD sesuai ketentuan pengadaan barang/jasa pemerintah.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">03</div><div class="siklus-label">Penggunaan</div><div class="siklus-desc">Penetapan status penggunaan BMD oleh Pengelola Barang kepada Pengguna Barang.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">04</div><div class="siklus-label">Pemanfaatan</div><div class="siklus-desc">Pendayagunaan BMD yang tidak digunakan sesuai tupoksi (Sewa, Pinjam Pakai, KSP, BGS/BSG).</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">05</div><div class="siklus-label">Pengamanan &amp; Pemeliharaan</div><div class="siklus-desc">Pengamanan fisik, administrasi, dan hukum, serta pemeliharaan kondisi BMD.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">06</div><div class="siklus-label">Penilaian</div><div class="siklus-desc">Penentuan nilai BMD untuk penyusunan neraca, pemanfaatan, atau pemindahtanganan.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">07</div><div class="siklus-label">Pemindahtanganan</div><div class="siklus-desc">Pengalihan kepemilikan BMD melalui penjualan, tukar menukar, hibah, atau penyertaan modal.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">08</div><div class="siklus-label">Penatausahaan</div><div class="siklus-desc">Pencatatan, inventarisasi, pelaporan, dan rekonsiliasi BMD secara sistematis.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">09</div><div class="siklus-label">Penghapusan</div><div class="siklus-desc">Penghapusan BMD dari daftar barang pengguna berdasarkan SK penghapusan resmi.</div></div>
+        <div class="cf-card cf-siklus"><div class="siklus-num">10</div><div class="siklus-label">Pengawasan &amp; Pengendalian</div><div class="siklus-desc">Monitoring dan evaluasi pengelolaan BMD untuk memastikan kepatuhan dan efektivitas.</div></div>
+      </div>
+    </div>
+    <div class="cf-hint">Arahkan kursor ke kartu, lalu <span>scroll ↑ ↓</span> untuk menggeser · seret atau klik kartu</div>
   </div>
 </section>
 
@@ -919,6 +1089,20 @@
       </div>
     </div>
   </div>
+
+  <div class="section-header reveal" style="margin-top:5rem;">
+    <div class="section-label">Pengurus Barang</div>
+    <h2 class="section-title">Pengurus Barang per SKPD</h2>
+    <p class="section-desc">59 Perangkat Daerah pengelola Barang Milik Daerah Kabupaten Kediri beserta total nilai aset yang dikelola (TA 2025).</p>
+  </div>
+  <div class="coverflow reveal" data-coverflow id="skpdCoverflow">
+    <button class="cf-nav cf-prev" type="button" aria-label="Sebelumnya">‹</button>
+    <button class="cf-nav cf-next" type="button" aria-label="Berikutnya">›</button>
+    <div class="cf-viewport" tabindex="0">
+      <div class="cf-track" id="skpdTrack"></div>
+    </div>
+    <div class="cf-hint">Arahkan kursor ke kartu, lalu <span>scroll ↑ ↓</span> untuk menggeser · seret atau klik kartu</div>
+  </div>
 </section>
 
 <!-- LAYANAN -->
@@ -944,11 +1128,18 @@
       <p class="app-desc">Sistem Informasi Geografis pemetaan aset tanah milik Pemerintah Kabupaten Kediri berbasis koordinat interaktif.</p>
     </a>
     <a class="app-card" href="https://ipabmdkabkediri.vercel.app" target="_blank">
-      <span class="app-badge badge-dev">IN DEVELOPMENT</span>
+      <span class="app-badge badge-live">LIVE</span>
       <div class="app-icon">📊</div>
       <div class="app-name">Indeks Pengelolaan Aset</div>
       <div class="app-url">ipabmdkabkediri.vercel.app</div>
       <p class="app-desc">Dashboard indeks kinerja pengelolaan aset — scoring, benchmarking, dan monitoring per SKPD.</p>
+    </a>
+    <a class="app-card" href="#" target="_blank">
+      <span class="app-badge badge-live">LIVE</span>
+      <div class="app-icon">🤖</div>
+      <div class="app-name">Chatbot Regulasi BMD</div>
+      <div class="app-url">#</div>
+      <p class="app-desc">Tanya jawab regulasi BMD berbasis AI — cari dasar hukum, prosedur, dan ketentuan pengelolaan BMD secara instan.</p>
     </a>
     <div class="app-card" onclick="openSosialisasiModal()" style="cursor:pointer;">
       <span class="app-badge badge-live">LIVE</span>
@@ -984,32 +1175,6 @@
   </div>
 </section>
 
-<!-- ARTIKEL -->
-<section class="bg-white" id="artikel">
-  <div class="section-header reveal">
-    <div class="section-label">Update & Insight</div>
-    <h2 class="section-title">Artikel &amp; Informasi</h2>
-    <p class="section-desc">Berita, panduan teknis, dan update regulasi seputar pengelolaan Barang Milik Daerah.</p>
-  </div>
-  <div class="artikel-grid reveal">
-    <div class="artikel-card big">
-      <div class="artikel-tag">📌 Panduan Teknis</div>
-      <div class="artikel-title">Alur Pelaporan BMD Semester II — Panduan Lengkap Pengurus Barang SKPD 2025</div>
-      <p class="artikel-excerpt">Panduan step-by-step pengisian laporan BMD semester II 2025 mulai dari verifikasi data di e-BMD, rekonsiliasi dengan BKAD, hingga pengesahan Kepala SKPD.</p>
-    </div>
-    <div class="artikel-card">
-      <div class="artikel-tag">⚖️ Regulasi</div>
-      <div class="artikel-title">Poin Penting PP No. 28/2020 untuk Pengelolaan BMD Daerah</div>
-      <p class="artikel-excerpt">Ringkasan perubahan signifikan dari PP 27/2014 ke PP 28/2020 yang perlu dipahami aparatur pengelola BMD.</p>
-    </div>
-    <div class="artikel-card">
-      <div class="artikel-tag">🗺️ GIS-BMD</div>
-      <div class="artikel-title">Cara Input Koordinat Tanah di Aplikasi GIS-BMD Kediri</div>
-      <p class="artikel-excerpt">Tutorial pengisian data spasial aset tanah — dari konversi koordinat GPS hingga upload ke platform GIS-BMD.</p>
-    </div>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <footer>
   <div class="footer-brand">
@@ -1022,7 +1187,7 @@
     <li><a href="#siklus">Siklus BMD</a></li>
     <li><a href="#regulasi">Regulasi</a></li>
   </ul>
-  <div class="footer-copy">© 2025 Bidang Pengelola BMD — BKAD Kab. Kediri</div>
+  <div class="footer-copy">© 2026 Bidang Pengelola BMD — BKAD Kab. Kediri</div>
 </footer>
 
 <!-- SOSIALISASI MODAL -->
@@ -1102,6 +1267,18 @@
     const isDark = html.getAttribute('data-theme') === 'dark';
     html.setAttribute('data-theme', isDark ? 'light' : 'dark');
     localStorage.setItem('bmd-theme', isDark ? 'light' : 'dark');
+  }
+
+  // ── MOBILE NAV MENU ──
+  function toggleMobileMenu() {
+    const menu = document.getElementById('navMobileMenu');
+    const btn = document.getElementById('navHamburgerBtn');
+    const isOpen = menu.classList.toggle('open');
+    btn.textContent = isOpen ? '✕' : '☰';
+  }
+  function closeMobileMenu() {
+    document.getElementById('navMobileMenu').classList.remove('open');
+    document.getElementById('navHamburgerBtn').textContent = '☰';
   }
 
   // ── DATA PER SKPD ──
@@ -1192,6 +1369,102 @@
     return 'Rp ' + jt.toFixed(1).replace('.', ',') + ' jt';
   }
 
+  function formatAset(n) {
+    if (!n || n <= 0) return 'Rp 0';
+    if (n >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (n >= 1e9)  return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (n >= 1e6)  return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' jt';
+    return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  }
+
+  function buildSkpdCoverflow() {
+    const track = document.getElementById('skpdTrack');
+    if (!track) return;
+    const ranked = SKPD
+      .map(s => ({ n: s.n, foto: s.foto || '', total: s.t + s.pm + s.gb + s.jij + s.atl + s.kdp + s.atbw + s.all }))
+      .sort((a, b) => b.total - a.total);
+    track.innerHTML = ranked.map((s, i) => `
+      <div class="cf-card cf-skpd">
+        <div class="cf-photo" data-photo aria-hidden="true"${s.foto ? ` style="background-image:url('${s.foto}')"` : ''}>${s.foto ? '' : '👤'}</div>
+        <div class="cf-skpd-rank">Peringkat ${i + 1} · Pengurus Barang</div>
+        <div class="cf-skpd-name"><span>${s.n}</span></div>
+        <div class="cf-skpd-divider"></div>
+        <div class="cf-skpd-total-label">Total Nilai Aset</div>
+        <div class="cf-skpd-total">${formatAset(s.total)}</div>
+      </div>`).join('');
+  }
+
+  // scroll ↑ = geser kartu kiri (prev), scroll ↓ = geser kartu kanan (next);
+  // di ujung, scroll diteruskan ke halaman (scroll normal).
+  function initCoverflow(root) {
+    const viewport = root.querySelector('.cf-viewport');
+    const track = root.querySelector('.cf-track');
+    const prevBtn = root.querySelector('.cf-prev');
+    const nextBtn = root.querySelector('.cf-next');
+    let cards = Array.from(track.children);
+    if (!cards.length) return;
+    let active = 0;
+    let lastWheel = 0;
+
+    function center(animate) {
+      if (!animate) track.classList.add('no-anim');
+      const card = cards[active];
+      const target = viewport.clientWidth / 2 - (card.offsetLeft + card.offsetWidth / 2);
+      track.style.transform = `translateX(${target}px)`;
+      cards.forEach((c, i) => c.classList.toggle('is-active', i === active));
+      if (prevBtn) prevBtn.disabled = active === 0;
+      if (nextBtn) nextBtn.disabled = active === cards.length - 1;
+      if (!animate) requestAnimationFrame(() => track.classList.remove('no-anim'));
+    }
+    function go(i) {
+      const clamped = Math.max(0, Math.min(cards.length - 1, i));
+      if (clamped === active) return;
+      active = clamped;
+      center(true);
+    }
+
+    viewport.addEventListener('wheel', (e) => {
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      const dir = delta > 0 ? 1 : -1;
+      const atEdge = (dir > 0 && active === cards.length - 1) || (dir < 0 && active === 0);
+      if (atEdge) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lastWheel < 110) return;
+      lastWheel = now;
+      go(active + dir);
+    }, { passive: false });
+
+    if (prevBtn) prevBtn.addEventListener('click', () => go(active - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => go(active + 1));
+
+    viewport.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(active - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); go(active + 1); }
+    });
+
+    let dragging = false, startX = 0, moved = 0, downIdx = -1;
+    viewport.addEventListener('pointerdown', (e) => {
+      dragging = true; startX = e.clientX; moved = 0;
+      const card = e.target.closest('.cf-card');
+      downIdx = card ? cards.indexOf(card) : -1;
+      viewport.setPointerCapture(e.pointerId);
+    });
+    viewport.addEventListener('pointermove', (e) => {
+      if (dragging) moved = e.clientX - startX;
+    });
+    viewport.addEventListener('pointerup', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      try { viewport.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (Math.abs(moved) > 60) go(active + (moved < 0 ? 1 : -1));
+      else if (Math.abs(moved) < 8 && downIdx >= 0 && downIdx !== active) go(downIdx);
+    });
+
+    window.addEventListener('resize', () => center(false));
+    center(false);
+  }
+
   function buildAccordion() {
     const container = document.getElementById('nilaiAccordion');
     JENIS.forEach((j, idx) => {
@@ -1271,6 +1544,8 @@
 
   // ── Init ──
   buildAccordion();
+  buildSkpdCoverflow();
+  document.querySelectorAll('[data-coverflow]').forEach(el => initCoverflow(el));
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
   document.querySelectorAll('.jenis-item').forEach(el => barObs.observe(el));
 
