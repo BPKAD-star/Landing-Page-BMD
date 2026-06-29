@@ -791,9 +791,16 @@
   .reveal, .reveal.visible { opacity: 1; transform: none; }
 
   /* ════ FULLPAGE DECK ════ */
-  html { scroll-snap-type: y mandatory; }
-  body { overflow-x: hidden; scrollbar-width: none; }
-  body::-webkit-scrollbar { width: 0; height: 0; }
+  html {
+    scroll-snap-type: y mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-soft) transparent;
+  }
+  html::-webkit-scrollbar { width: 7px; }
+  html::-webkit-scrollbar-track { background: transparent; }
+  html::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 4px; }
+  html::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  body { overflow-x: hidden; }
   .hero { height: 100vh; min-height: 600px; }
 
   /* entrance berjenjang tiap slide (aktif hanya saat JS siap → degradasi anggun) */
@@ -810,24 +817,6 @@
     .js-deck section:not(.hero) > * { transition: opacity 0.3s; transform: none; }
   }
 
-  /* navigasi titik kanan */
-  .deck-dots {
-    position: fixed; top: 50%; right: 1.4rem; transform: translateY(-50%);
-    z-index: 90; display: flex; flex-direction: column; gap: 0.85rem; align-items: flex-end;
-  }
-  .deck-dot { display: flex; align-items: center; gap: 0.55rem; cursor: pointer; background: none; border: none; padding: 0; }
-  .deck-dot-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; letter-spacing: 0.03em;
-    color: var(--text-dim); background: var(--bg-card); border: 1px solid var(--border-soft);
-    padding: 0.22rem 0.55rem; border-radius: 6px; box-shadow: var(--shadow-sm); white-space: nowrap;
-    opacity: 0; transform: translateX(6px); pointer-events: none; transition: opacity 0.25s, transform 0.25s;
-  }
-  .deck-dot:hover .deck-dot-label, .deck-dot.active .deck-dot-label { opacity: 1; transform: none; }
-  .deck-dot-mark { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); opacity: 0.45; transition: all 0.3s; flex-shrink: 0; }
-  .deck-dot:hover .deck-dot-mark { opacity: 0.85; }
-  .deck-dot.active .deck-dot-mark { opacity: 1; height: 24px; border-radius: 6px; background: var(--blue-brand); box-shadow: 0 0 0 4px var(--blue-pale); }
-  @media (max-width: 768px) { .deck-dots { display: none; } }
-
   /* petunjuk gulir di hero */
   .scroll-cue {
     position: absolute; bottom: 1.5rem; left: 5vw; z-index: 1;
@@ -839,10 +828,16 @@
   @keyframes cueBob { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(5px); } }
 
   /* ── penyesuaian agar tiap slide muat 1 layar ── */
-  #nilai .nilai-total-card { margin-bottom: 1.1rem; padding: 1.4rem 2rem; }
-  #nilai #nilaiAccordion { width: 100%; max-width: 1080px; margin: 0 auto; overflow-y: auto; max-height: 56vh; scrollbar-width: none; }
-  #nilai #nilaiAccordion::-webkit-scrollbar { width: 0; }
-  #nilai .jenis-header { padding: 0.8rem 1.4rem; }
+  #nilai .nilai-total-card { margin-bottom: 1.4rem; padding: 1.4rem 2rem; }
+  #nilai #nilaiCards { width: 100%; max-width: 1180px; margin: 0 auto; grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { #nilai #nilaiCards { grid-template-columns: repeat(2, 1fr); } }
+  .jenis-card { cursor: pointer; }
+  .jenis-card-cta {
+    margin-top: 0.85rem; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.03em; color: var(--blue-brand); opacity: 0.85;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .jenis-card:hover .jenis-card-cta { opacity: 1; }
   #chart .chart-wrap { max-width: 1000px; margin: 0 auto; width: 100%; }
   #regulasi .reg-hierarchy { max-height: 64vh; }
   #layanan .apps-grid { grid-template-columns: repeat(3, 1fr); gap: 1.1rem; max-width: 1120px; margin: 0 auto; width: 100%; }
@@ -864,12 +859,45 @@
     .section-desc { font-size: 0.88rem; line-height: 1.6; }
     .cf-viewport { padding: 1.6rem 0 1.8rem; }
     .cf-card { min-height: 300px; }
-    #nilai #nilaiAccordion { max-height: 50vh; }
+    #nilai .jenis-card { padding: 1rem; }
+    #nilai .jenis-card-cta { margin-top: 0.55rem; }
     #layanan .app-card, #edukasi .edu-card { padding: 1.05rem; }
     #layanan .app-desc, #edukasi .edu-desc { font-size: 0.76rem; line-height: 1.5; }
     footer { padding: 1.2rem 5vw; }
     section#edukasi > .edukasi-grid { margin-bottom: 1rem; }
   }
+
+  /* ── MODAL RINCIAN JENIS BMD ── */
+  .jenis-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,23,42,0.65); z-index: 1000;
+    align-items: center; justify-content: center; padding: 1.5rem;
+    backdrop-filter: blur(3px);
+  }
+  .jenis-overlay.open { display: flex; }
+  .jenis-modal {
+    background: var(--bg-card); border-radius: 16px; width: 100%; max-width: 720px;
+    max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35); overflow: hidden;
+    transform: translateY(12px) scale(0.98); opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
+  }
+  .jenis-overlay.open .jenis-modal { transform: none; opacity: 1; }
+  .jenis-modal-head {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-soft); flex-shrink: 0;
+  }
+  .jenis-modal-rank {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: var(--blue-ice); border: 1px solid var(--blue-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: var(--blue-brand); flex-shrink: 0;
+  }
+  .jenis-modal-info { flex: 1; min-width: 0; }
+  .jenis-modal-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--text-dark); line-height: 1.2; }
+  .jenis-modal-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--blue-brand); margin-top: 0.25rem; letter-spacing: 0.04em; }
+  .jenis-modal-body { overflow-y: auto; padding: 0.4rem 1.5rem 1.2rem; }
+  .jenis-modal-body .skpd-list-header { position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
 
   /* ── THEME TOGGLE BUTTON ── */
   .theme-toggle {
@@ -1023,9 +1051,6 @@
   <a href="https://e-bmd.kedirikab.go.id" target="_blank" class="nav-cta">e-BMD →</a>
 </div>
 
-<!-- DECK DOT NAV -->
-<nav class="deck-dots" id="deckDots" aria-label="Navigasi halaman"></nav>
-
 <!-- HERO -->
 <section class="hero" id="home">
   <div class="hero-bg-blob"></div>
@@ -1062,7 +1087,7 @@
     </div>
     <div class="nilai-total-badge">AKHIR TAHUN 2025</div>
   </div>
-  <div id="nilaiAccordion" class="jenis-accordion reveal"></div>
+  <div id="nilaiCards" class="jenis-grid reveal"></div>
 </section>
 
 <!-- CHART -->
@@ -1288,6 +1313,21 @@
     <div class="footer-copy">© 2026 Bidang Pengelola BMD — BKAD Kab. Kediri</div>
   </footer>
 </section>
+
+<!-- MODAL RINCIAN JENIS BMD -->
+<div class="jenis-overlay" id="jenisOverlay" onclick="closeJenisModal(event)">
+  <div class="jenis-modal">
+    <div class="jenis-modal-head">
+      <div class="jenis-modal-rank" id="jenisModalRank">01</div>
+      <div class="jenis-modal-info">
+        <div class="jenis-modal-title" id="jenisModalTitle">-</div>
+        <div class="jenis-modal-sub" id="jenisModalSub">-</div>
+      </div>
+      <button class="btn-cl" onclick="closeJenisModal()">✕</button>
+    </div>
+    <div class="jenis-modal-body" id="jenisModalBody"></div>
+  </div>
+</div>
 
 <!-- SOSIALISASI MODAL -->
 <div class="sos-overlay" id="sosOverlay" onclick="closeSosialisasiModal(event)">
@@ -1564,59 +1604,62 @@
     center(false);
   }
 
-  function buildAccordion() {
-    const container = document.getElementById('nilaiAccordion');
-    JENIS.forEach((j, idx) => {
-      const sorted = SKPD.filter(s => s[j.key] > 0).sort((a, b) => b[j.key] - a[j.key]);
-      const maxVal = sorted.length ? sorted[0][j.key] : 1;
-
-      const skpdRows = sorted.map((s, i) => {
-        const relPct = Math.round(s[j.key] / maxVal * 100);
-        const pctOf  = (s[j.key] / j.total * 100).toFixed(1).replace('.', ',');
-        return `<div class="skpd-item">
-          <span class="skpd-rank">${i + 1}</span>
-          <span class="skpd-name" title="${s.n}">${s.n}</span>
-          <span class="skpd-val">${formatRp(s[j.key])}</span>
-          <span class="skpd-pct">${pctOf}%</span>
-          <div class="skpd-bar-wrap"><div class="skpd-bar-inner" style="width:${relPct}%"></div></div>
-        </div>`;
-      }).join('');
-
-      const item = document.createElement('div');
-      item.className = 'jenis-item';
-      item.innerHTML = `
-        <div class="jenis-header" onclick="toggleJenis(this.parentElement)">
-          <span class="jenis-acc-rank">${String(idx + 1).padStart(2, '0')}</span>
-          <div class="jenis-meta">
-            <div class="jenis-acc-name">${j.label}</div>
-            <div class="jenis-bar-row">
-              <div class="jenis-bar-wrap"><div class="jenis-bar-inner" data-pct="${j.pct}"></div></div>
-              <span class="jenis-pct-badge">${String(j.pct).replace('.', ',')}% dari total</span>
-            </div>
-          </div>
-          <div class="jenis-acc-val">${formatRp(j.total)}</div>
-          <span class="jenis-chevron">▼</span>
-        </div>
-        <div class="jenis-dropdown">
-          <div class="skpd-list">
-            <div class="skpd-list-header">
-              <span class="skpd-hdr rank">#</span>
-              <span class="skpd-hdr name">SKPD</span>
-              <span class="skpd-hdr val">Nilai</span>
-              <span class="skpd-hdr pct">% Jenis</span>
-              <span class="skpd-hdr bar"></span>
-            </div>
-            ${skpdRows}
-          </div>
-        </div>`;
-      container.appendChild(item);
+  // ── KARTU per JENIS BMD (klik → modal rincian SKPD) ──
+  function buildJenisCards() {
+    const container = document.getElementById('nilaiCards');
+    if (!container) return;
+    container.innerHTML = JENIS.map((j, idx) => `
+      <div class="jenis-card" onclick="openJenisModal('${j.key}')" role="button" tabindex="0">
+        <div class="jenis-name">${j.label}</div>
+        <div class="jenis-val">${formatRp(j.total)}</div>
+        <div class="jenis-pct">${String(j.pct).replace('.', ',')}% dari total</div>
+        <div class="bar-track"><div class="bar-fill" data-w="${j.pct}"></div></div>
+        <div class="jenis-card-cta">Lihat rincian SKPD →</div>
+      </div>`).join('');
+    // animasikan bar tumbuh dari 0
+    requestAnimationFrame(() => {
+      container.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
     });
   }
 
-  function toggleJenis(item) {
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.jenis-item.open').forEach(i => i.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
+  function openJenisModal(key) {
+    const j = JENIS.find(x => x.key === key);
+    if (!j) return;
+    const idx = JENIS.indexOf(j);
+    const sorted = SKPD.filter(s => s[key] > 0).sort((a, b) => b[key] - a[key]);
+    const maxVal = sorted.length ? sorted[0][key] : 1;
+    const rows = sorted.map((s, i) => {
+      const relPct = Math.round(s[key] / maxVal * 100);
+      const pctOf  = (s[key] / j.total * 100).toFixed(1).replace('.', ',');
+      return `<div class="skpd-item">
+        <span class="skpd-rank">${i + 1}</span>
+        <span class="skpd-name" title="${s.n}">${s.n}</span>
+        <span class="skpd-val">${formatRp(s[key])}</span>
+        <span class="skpd-pct">${pctOf}%</span>
+        <div class="skpd-bar-wrap"><div class="skpd-bar-inner" style="width:${relPct}%"></div></div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('jenisModalRank').textContent = String(idx + 1).padStart(2, '0');
+    document.getElementById('jenisModalTitle').textContent = j.label;
+    document.getElementById('jenisModalSub').textContent =
+      `${formatRp(j.total)} · ${String(j.pct).replace('.', ',')}% dari total BMD · ${sorted.length} SKPD`;
+    document.getElementById('jenisModalBody').innerHTML = `
+      <div class="skpd-list-header">
+        <span class="skpd-hdr rank">#</span>
+        <span class="skpd-hdr name">SKPD</span>
+        <span class="skpd-hdr val">Nilai</span>
+        <span class="skpd-hdr pct">% Jenis</span>
+        <span class="skpd-hdr bar"></span>
+      </div>${rows}`;
+    document.getElementById('jenisOverlay').classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function closeJenisModal(e) {
+    if (e && e.target.closest('.jenis-modal') && !e.target.closest('.btn-cl')) return;
+    document.getElementById('jenisOverlay').classList.remove('open');
+    document.documentElement.style.overflow = '';
   }
 
   // ── Scroll Reveal ──
@@ -1641,28 +1684,9 @@
     });
   }, { threshold: 0.1 });
 
-  // ── DECK: navigasi titik + transisi masuk per-slide ──
+  // ── DECK: transisi masuk per-slide saat tergulir ──
   function initDeck() {
-    const SLIDES = [
-      ['home', 'Home'], ['nilai', 'Nilai BMD'], ['chart', 'Komposisi Aset'],
-      ['regulasi', 'Regulasi'], ['siklus', 'Siklus BMD'], ['organisasi', 'Struktur Organisasi'],
-      ['pengurus', 'Pengurus Barang'], ['layanan', 'Layanan'], ['edukasi', 'Pahami BMD'],
-    ];
-    const wrap = document.getElementById('deckDots');
-    const dotById = {};
-    SLIDES.forEach(([id, label]) => {
-      const sec = document.getElementById(id);
-      if (!sec) return;
-      const b = document.createElement('button');
-      b.className = 'deck-dot'; b.type = 'button';
-      b.setAttribute('aria-label', label);
-      b.innerHTML = `<span class="deck-dot-label">${label}</span><span class="deck-dot-mark"></span>`;
-      b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
-      wrap.appendChild(b);
-      dotById[id] = b;
-    });
-    // slide aktif = section yang pusatnya paling dekat ke tengah viewport
-    const sections = SLIDES.map(([id]) => document.getElementById(id)).filter(Boolean);
+    const sections = Array.from(document.querySelectorAll('section'));
     let raf = null, current = null;
     function update() {
       raf = null;
@@ -1677,8 +1701,6 @@
         if (current) current.classList.remove('slide-active');
         best.classList.add('slide-active');
         current = best;
-        Object.values(dotById).forEach(d => d.classList.remove('active'));
-        if (dotById[best.id]) dotById[best.id].classList.add('active');
       }
     }
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -1692,12 +1714,13 @@
   }
 
   // ── Init ──
-  buildAccordion();
+  buildJenisCards();
   buildSkpdCoverflow();
   document.querySelectorAll('[data-coverflow]').forEach(el => initCoverflow(el));
   initDeck();
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-  document.querySelectorAll('.jenis-item').forEach(el => barObs.observe(el));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('jenisOverlay').classList.contains('open')) closeJenisModal();
+  });
 
   // ── Donut ──
   const CIRC = 2 * Math.PI * 108;
