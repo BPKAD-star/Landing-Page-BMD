@@ -204,8 +204,19 @@
     letter-spacing: 0.03em;
   }
 
-  /* ── SECTION BASE ── */
-  section { padding: 5.5rem 5vw; }
+  /* ── SECTION BASE (fullpage deck) ── */
+  section {
+    height: 100vh;
+    min-height: 600px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden;
+    position: relative;
+  }
+  section:not(.hero) {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 5vw 3rem;
+  }
   .section-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
@@ -235,7 +246,7 @@
     line-height: 1.75;
     max-width: 560px;
   }
-  .section-header { margin-bottom: 3rem; }
+  .section-header { margin-bottom: 1.8rem; }
 
   /* ── bg alternating ── */
   .bg-white { background: var(--bg-base); }
@@ -776,8 +787,89 @@
   }
 
   /* ── SCROLL REVEAL ── */
-  .reveal { opacity: 0; transform: translateY(20px); transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
+  /* reveal dinetralkan — entrance kini ditangani per-slide deck */
+  .reveal, .reveal.visible { opacity: 1; transform: none; }
+
+  /* ════ FULLPAGE DECK ════ */
+  html { scroll-snap-type: y mandatory; }
+  body { overflow-x: hidden; scrollbar-width: none; }
+  body::-webkit-scrollbar { width: 0; height: 0; }
+  .hero { height: 100vh; min-height: 600px; }
+
+  /* entrance berjenjang tiap slide (aktif hanya saat JS siap → degradasi anggun) */
+  .js-deck section:not(.hero) > * {
+    opacity: 0; transform: translateY(44px);
+    transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+  }
+  .js-deck section:not(.hero).slide-active > * { opacity: 1; transform: none; }
+  .js-deck section:not(.hero) > *:nth-child(1) { transition-delay: 0.06s; }
+  .js-deck section:not(.hero) > *:nth-child(2) { transition-delay: 0.18s; }
+  .js-deck section:not(.hero) > *:nth-child(3) { transition-delay: 0.30s; }
+  .js-deck section:not(.hero) > *:nth-child(4) { transition-delay: 0.42s; }
+  @media (prefers-reduced-motion: reduce) {
+    .js-deck section:not(.hero) > * { transition: opacity 0.3s; transform: none; }
+  }
+
+  /* navigasi titik kanan */
+  .deck-dots {
+    position: fixed; top: 50%; right: 1.4rem; transform: translateY(-50%);
+    z-index: 90; display: flex; flex-direction: column; gap: 0.85rem; align-items: flex-end;
+  }
+  .deck-dot { display: flex; align-items: center; gap: 0.55rem; cursor: pointer; background: none; border: none; padding: 0; }
+  .deck-dot-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; letter-spacing: 0.03em;
+    color: var(--text-dim); background: var(--bg-card); border: 1px solid var(--border-soft);
+    padding: 0.22rem 0.55rem; border-radius: 6px; box-shadow: var(--shadow-sm); white-space: nowrap;
+    opacity: 0; transform: translateX(6px); pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+  }
+  .deck-dot:hover .deck-dot-label, .deck-dot.active .deck-dot-label { opacity: 1; transform: none; }
+  .deck-dot-mark { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); opacity: 0.45; transition: all 0.3s; flex-shrink: 0; }
+  .deck-dot:hover .deck-dot-mark { opacity: 0.85; }
+  .deck-dot.active .deck-dot-mark { opacity: 1; height: 24px; border-radius: 6px; background: var(--blue-brand); box-shadow: 0 0 0 4px var(--blue-pale); }
+  @media (max-width: 768px) { .deck-dots { display: none; } }
+
+  /* petunjuk gulir di hero */
+  .scroll-cue {
+    position: absolute; bottom: 1.5rem; left: 5vw; z-index: 1;
+    display: flex; align-items: center; gap: 0.5rem;
+    color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .scroll-cue .cue-arrow { animation: cueBob 1.8s ease-in-out infinite; display: inline-flex; }
+  @keyframes cueBob { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(5px); } }
+
+  /* ── penyesuaian agar tiap slide muat 1 layar ── */
+  #nilai .nilai-total-card { margin-bottom: 1.1rem; padding: 1.4rem 2rem; }
+  #nilai #nilaiAccordion { width: 100%; max-width: 1080px; margin: 0 auto; overflow-y: auto; max-height: 56vh; scrollbar-width: none; }
+  #nilai #nilaiAccordion::-webkit-scrollbar { width: 0; }
+  #nilai .jenis-header { padding: 0.8rem 1.4rem; }
+  #chart .chart-wrap { max-width: 1000px; margin: 0 auto; width: 100%; }
+  #regulasi .reg-hierarchy { max-height: 64vh; }
+  #layanan .apps-grid { grid-template-columns: repeat(3, 1fr); gap: 1.1rem; max-width: 1120px; margin: 0 auto; width: 100%; }
+  #layanan .app-card { padding: 1.3rem; }
+  #layanan .app-icon { margin-bottom: 0.7rem; }
+  #layanan .app-desc { font-size: 0.8rem; }
+  #edukasi .edukasi-grid { max-width: 1120px; margin: 0 auto; width: 100%; gap: 1.1rem; }
+  #edukasi .edu-card { padding: 1.3rem; }
+  /* footer menyatu di slide terakhir */
+  section#edukasi { padding-bottom: 0; }
+  section#edukasi > .edukasi-grid { margin-bottom: 1.5rem; }
+  section#edukasi > footer { margin: 0 -5vw; width: calc(100% + 10vw); }
+
+  /* layar pendek (mis. laptop 768px): rapatkan agar tetap muat 1 layar */
+  @media (max-height: 820px) {
+    section:not(.hero) { padding-top: 5rem; }
+    .section-header { margin-bottom: 1rem; }
+    .section-title { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+    .section-desc { font-size: 0.88rem; line-height: 1.6; }
+    .cf-viewport { padding: 1.6rem 0 1.8rem; }
+    .cf-card { min-height: 300px; }
+    #nilai #nilaiAccordion { max-height: 50vh; }
+    #layanan .app-card, #edukasi .edu-card { padding: 1.05rem; }
+    #layanan .app-desc, #edukasi .edu-desc { font-size: 0.76rem; line-height: 1.5; }
+    footer { padding: 1.2rem 5vw; }
+    section#edukasi > .edukasi-grid { margin-bottom: 1rem; }
+  }
 
   /* ── THEME TOGGLE BUTTON ── */
   .theme-toggle {
@@ -931,8 +1023,11 @@
   <a href="https://e-bmd.kedirikab.go.id" target="_blank" class="nav-cta">e-BMD →</a>
 </div>
 
+<!-- DECK DOT NAV -->
+<nav class="deck-dots" id="deckDots" aria-label="Navigasi halaman"></nav>
+
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="home">
   <div class="hero-bg-blob"></div>
   <div class="hero-bg-blob2"></div>
   <div class="hero-content">
@@ -950,6 +1045,7 @@
     <div class="hero-stat"><div class="hero-stat-val">59</div><div class="hero-stat-lbl">Unit SKPD</div></div>
     <div class="hero-stat"><div class="hero-stat-val">2025</div><div class="hero-stat-lbl">Tahun Pelaporan</div></div>
   </div>
+  <div class="scroll-cue"><span>Gulir untuk menjelajah</span><span class="cue-arrow">↓</span></div>
 </section>
 
 <!-- NILAI BMD -->
@@ -1089,8 +1185,11 @@
       </div>
     </div>
   </div>
+</section>
 
-  <div class="section-header reveal" style="margin-top:5rem;">
+<!-- PENGURUS BARANG PER SKPD -->
+<section class="bg-white" id="pengurus">
+  <div class="section-header reveal">
     <div class="section-label">Pengurus Barang</div>
     <h2 class="section-title">Pengurus Barang per SKPD</h2>
     <p class="section-desc">59 Perangkat Daerah pengelola Barang Milik Daerah Kabupaten Kediri beserta total nilai aset yang dikelola (TA 2025).</p>
@@ -1173,22 +1272,22 @@
     <div class="edu-card"><span class="edu-icon">🏷️</span><div class="edu-title">Penilaian Aset</div><p class="edu-desc">Dilakukan untuk penyusunan neraca, pemanfaatan, dan pemindahtanganan. Dilaksanakan oleh Penilai Pemerintah atau penilai publik yang ditunjuk.</p></div>
     <div class="edu-card"><span class="edu-icon">🗑️</span><div class="edu-title">Penghapusan BMD</div><p class="edu-desc">Dilakukan setelah pemindahtanganan atau sebab lain (rusak berat, hilang, force majeure) dengan SK dari Bupati.</p></div>
   </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-brand">
-    Bidang Pengelola BMD
-    <small>BKAD Kabupaten Kediri · Jl. Soekarno-Hatta No. 1, Kediri</small>
-  </div>
-  <ul class="footer-links">
-    <li><a href="https://e-bmd.kedirikab.go.id" target="_blank">e-BMD</a></li>
-    <li><a href="https://gisbmdkabkediri.vercel.app" target="_blank">GIS-BMD</a></li>
-    <li><a href="#siklus">Siklus BMD</a></li>
-    <li><a href="#regulasi">Regulasi</a></li>
-  </ul>
-  <div class="footer-copy">© 2026 Bidang Pengelola BMD — BKAD Kab. Kediri</div>
-</footer>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      Bidang Pengelola BMD
+      <small>BKAD Kabupaten Kediri · Jl. Soekarno-Hatta No. 1, Kediri</small>
+    </div>
+    <ul class="footer-links">
+      <li><a href="https://e-bmd.kedirikab.go.id" target="_blank">e-BMD</a></li>
+      <li><a href="https://gisbmdkabkediri.vercel.app" target="_blank">GIS-BMD</a></li>
+      <li><a href="#siklus">Siklus BMD</a></li>
+      <li><a href="#regulasi">Regulasi</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 Bidang Pengelola BMD — BKAD Kab. Kediri</div>
+  </footer>
+</section>
 
 <!-- SOSIALISASI MODAL -->
 <div class="sos-overlay" id="sosOverlay" onclick="closeSosialisasiModal(event)">
@@ -1542,10 +1641,61 @@
     });
   }, { threshold: 0.1 });
 
+  // ── DECK: navigasi titik + transisi masuk per-slide ──
+  function initDeck() {
+    const SLIDES = [
+      ['home', 'Home'], ['nilai', 'Nilai BMD'], ['chart', 'Komposisi Aset'],
+      ['regulasi', 'Regulasi'], ['siklus', 'Siklus BMD'], ['organisasi', 'Struktur Organisasi'],
+      ['pengurus', 'Pengurus Barang'], ['layanan', 'Layanan'], ['edukasi', 'Pahami BMD'],
+    ];
+    const wrap = document.getElementById('deckDots');
+    const dotById = {};
+    SLIDES.forEach(([id, label]) => {
+      const sec = document.getElementById(id);
+      if (!sec) return;
+      const b = document.createElement('button');
+      b.className = 'deck-dot'; b.type = 'button';
+      b.setAttribute('aria-label', label);
+      b.innerHTML = `<span class="deck-dot-label">${label}</span><span class="deck-dot-mark"></span>`;
+      b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+      wrap.appendChild(b);
+      dotById[id] = b;
+    });
+    // slide aktif = section yang pusatnya paling dekat ke tengah viewport
+    const sections = SLIDES.map(([id]) => document.getElementById(id)).filter(Boolean);
+    let raf = null, current = null;
+    function update() {
+      raf = null;
+      const mid = window.innerHeight / 2;
+      let best = null, bestDist = Infinity;
+      sections.forEach(s => {
+        const r = s.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - mid);
+        if (d < bestDist) { bestDist = d; best = s; }
+      });
+      if (best && best !== current) {
+        if (current) current.classList.remove('slide-active');
+        best.classList.add('slide-active');
+        current = best;
+        Object.values(dotById).forEach(d => d.classList.remove('active'));
+        if (dotById[best.id]) dotById[best.id].classList.add('active');
+      }
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    window.addEventListener('hashchange', () => setTimeout(update, 50));
+    window.addEventListener('load', update);
+    update();
+    // aktifkan mode deck (entrance) hanya setelah semuanya siap → tanpa JS isi tetap tampil
+    document.documentElement.classList.add('js-deck');
+  }
+
   // ── Init ──
   buildAccordion();
   buildSkpdCoverflow();
   document.querySelectorAll('[data-coverflow]').forEach(el => initCoverflow(el));
+  initDeck();
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
   document.querySelectorAll('.jenis-item').forEach(el => barObs.observe(el));
 
